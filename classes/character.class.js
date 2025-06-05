@@ -1,10 +1,14 @@
 class Character extends MovableObject {
 
+
+
     jump() {
         console.log("jump");
     }
 
     constructor() {
         super();
+        this.loadImg('./img/2_character_pepe/2_walk/W-21.png');
+
     }
 }
