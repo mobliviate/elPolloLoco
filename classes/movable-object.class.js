@@ -7,6 +7,11 @@ class MovableObject {
         console.log("moveRight");
     }
 
+    moveLeft() {
+        console.log("moveLeft");
+    }
+
+
     constructor() {
 
     }
