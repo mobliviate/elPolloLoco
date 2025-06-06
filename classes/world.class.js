@@ -1,5 +1,5 @@
 class World {
-    character = new Character();
+    character = [new Character()];
     enemies = [new Chicken(), new Chicken(), new Chicken()];
     clouds = [new Cloud()];
     canvas;
@@ -29,7 +29,7 @@ class World {
 
         this.addObjectsToMap(this.clouds);
 
-        this.addToMap(this.character);
+        this.addObjectsToMap(this.character);
 
         this.addObjectsToMap(this.enemies);
 
