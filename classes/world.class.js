@@ -13,6 +13,7 @@ class World {
     canvas;
     ctx;
     keyboard;
+    camera_x = 0;
 
 
 
@@ -31,6 +32,8 @@ class World {
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        this.ctx.translate(this.camera_x, 0);
+
         this.addObjectsToMap(this.backgroundObjects);
 
         this.addObjectsToMap(this.clouds);
@@ -38,6 +41,8 @@ class World {
         this.addObjectsToMap(this.character);
 
         this.addObjectsToMap(this.enemies);
+        
+        this.ctx.translate(-this.camera_x, 0);
 
 
 
