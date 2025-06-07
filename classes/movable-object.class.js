@@ -1,15 +1,11 @@
-class MovableObject {
-    x = 0;
-    y = 0;
-    img;
-    height = 480;
-    width = 200;
-    currentImage = 0;
+class MovableObject extends DrawableObject {
+
     speed = 0.5;
     otherDirection = false;
-    imageCache = {};
     speedY = 0;
     acceleration = 1;
+    energy = 100;
+    lastHit = 0;
 
     applyGravity() {
         setInterval(() => {
@@ -26,34 +22,17 @@ class MovableObject {
     }
 
 
-    loadImg(path) {
-        this.img = new Image();
-        this.img.src = path;
+    isColliding(movableObject) {
+        return (
+            this.x < movableObject.x + movableObject.width &&
+            this.x + this.width > movableObject.x &&
+            this.y < movableObject.y + movableObject.height &&
+            this.y + this.height > movableObject.y
+        );
     }
-
-    loadImages(arr) {
-        arr.forEach((path) => {
-            let img = new Image();
-            img.src = path;
-            this.imageCache[path] = img;
-        });
-    }
-
-    draw(ctx) {
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
-    }
-
-    drawFrame(ctx) {
-        ctx.beginPath();
-        ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-
 
     playAnimation(images) {
-        let i = this.currentImage % this.IMAGES_WALKING.length;
+        let i = this.currentImage % images.length;
         let path = images[i];
         this.img = this.imageCache[path];
         this.currentImage++;
@@ -73,8 +52,26 @@ class MovableObject {
         this.speedY = 22;
     }
 
+    hit() {
+        this.energy -= 5;
+        if (this.energy < 0) {
+            this.energy = 0;
+        } else {
+            this.lastHit = new Date().getTime();
+        }
+    }
+
+    isHurt() {
+        let timepassed = new Date().getTime() - this.lastHit;
+        return timepassed < 1000;
+    }
+
+    dead() {
+        return this.energy == 0;
+    }
+
 
     constructor() {
-
+        super();
     }
 }

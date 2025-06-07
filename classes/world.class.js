@@ -6,6 +6,9 @@ class World {
     ctx;
     keyboard;
     camera_x = 0;
+    statusBarHealth = new StatusBar('health', 0);
+    statusBarCoin = new StatusBar('coin', 40);
+    statusBarBottle = new StatusBar('bottle', 80);
 
 
 
@@ -15,35 +18,54 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.draw();
         this.setWorld();
+        this.checkCollisions();
     }
 
     setWorld() {
         this.character[0].world = this;
     }
 
+    checkCollisions() {
+        setInterval(() => {
+            this.level.enemies.forEach((enemy) => {
+                if (this.character[0].isColliding(enemy)) {
+                    this.character[0].hit();
+                    this.statusBarHealth.updateHealthBar(this.character[0].energy);
+
+                    if (this.character[0].energy <= 0) {
+                        this.character[0].dead();
+                    }
+                }
+            });
+        }, 100);
+    }
+
     draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.translate(this.camera_x, 0);
+            this.ctx.translate(this.camera_x, 0);
 
-        this.addObjectsToMap(this.level.backgroundObjects);
+            this.addObjectsToMap(this.level.backgroundObjects);
 
-        this.addObjectsToMap(this.level.clouds);
+            this.addObjectsToMap(this.level.clouds);
 
-        this.addObjectsToMap(this.character);
+            this.ctx.translate(-this.camera_x, 0);
+            this.addToMap(this.statusBarHealth);
+            this.addToMap(this.statusBarCoin);
+            this.addToMap(this.statusBarBottle);
+            this.ctx.translate(this.camera_x, 0);
 
-        this.addObjectsToMap(this.level.enemies);
-        
-        this.ctx.translate(-this.camera_x, 0);
+            this.addObjectsToMap(this.character);
+
+            this.addObjectsToMap(this.level.enemies);
+
+            this.ctx.translate(-this.camera_x, 0);
 
 
-
-
-
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
-        });
+            let self = this;
+            requestAnimationFrame(function() {
+                self.draw();
+            });
     }
 
     addObjectsToMap(objects) {
