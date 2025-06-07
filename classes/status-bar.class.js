@@ -29,7 +29,7 @@ class StatusBar extends DrawableObject {
 
     percentage_health = 100;
     percentage_coin = 0;
-    percentage_bottle = 100;
+    percentage_bottle = 0;
 
     constructor(type, yPosition) {
         super();

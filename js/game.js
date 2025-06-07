@@ -17,6 +17,7 @@ function init() {
 
 
 window.addEventListener('keydown', event => {
+    console.log(event.code);
     switch (event.code) {
         case 'ArrowLeft':
             keyboard.LEFT = true;
@@ -32,6 +33,9 @@ window.addEventListener('keydown', event => {
             break;
         case 'Space':
             keyboard.SPACE = true;
+            break;
+        case 'KeyD':
+            keyboard.D = true;
             break;
     }
 });
@@ -52,6 +56,9 @@ window.addEventListener('keyup', event => {
             break;
         case 'Space':
             keyboard.SPACE = false;
+            break;
+        case 'KeyD':
+            keyboard.D = false;
             break;
     }
 });
