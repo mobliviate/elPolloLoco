@@ -27,13 +27,23 @@ class DrawableObject {
     }
 
     drawFrame(ctx) {
-        if (this instanceof Character || this instanceof Endboss || this instanceof Chicken) {
-            ctx.beginPath();
-            ctx.rect(this.x, this.y, this.width, this.height);
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 2;
-            ctx.stroke();
+        if (this instanceof Cloud || this instanceof StatusBar || this instanceof BackgroundObject) {
+            return;
         }
+        const offset = MovableObject.getHitboxOffset(this.constructor.name);
+    
+        ctx.beginPath();
+        ctx.rect(
+            this.x + offset.left,
+            this.y + offset.top,
+            this.width - offset.left - offset.right,
+            this.height - offset.top - offset.bottom
+        );
+        ctx.strokeStyle = this instanceof Character ? 'lime' :
+                          this instanceof Endboss ? 'orange' :
+                          this instanceof Coin || this instanceof Bottle || this instanceof ThrowableObject ? 'orange':
+        ctx.lineWidth = 2;
+        ctx.stroke();
     }
 
     constructor() {

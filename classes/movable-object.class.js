@@ -7,6 +7,19 @@ class MovableObject extends DrawableObject {
     energy = 100;
     lastHit = 0;
 
+    static hitboxOffsets = {
+        Character: { top: 190, bottom: 30, left: 55, right: 55 },
+        Endboss: { top: 70, bottom: 20, left: 20, right: 20 },
+        Coin: { top: 40, bottom: 40, left: 40, right: 40 },
+        Bottle: { top: 10, bottom: 10, left: 40, right: 40 },
+        ThrowableObject: { top: 10, bottom: 10, left: 40, right: 40 },
+        Chicken: { top: 0, bottom: 0, left: 0, right: 0 },
+    };
+
+    static getHitboxOffset(className) {
+        return this.hitboxOffsets[className] || { top: 0, bottom: 0, left: 0, right: 0 };
+    }
+
     applyGravity() {
         setInterval(() => {
             if (this.isAboveGround() || this.speedY > 0) {
@@ -26,12 +39,12 @@ class MovableObject extends DrawableObject {
     }
 
 
-    isColliding(movableObject) {
+    isColliding(other, thisOffset = MovableObject.getHitboxOffset(this.constructor.name), otherOffset = MovableObject.getHitboxOffset(other.constructor.name)) {
         return (
-            this.x < movableObject.x + movableObject.width &&
-            this.x + this.width > movableObject.x &&
-            this.y < movableObject.y + movableObject.height &&
-            this.y + this.height > movableObject.y
+            this.x + thisOffset.left < other.x + other.width - otherOffset.right &&
+            this.x + this.width - thisOffset.right > other.x + otherOffset.left &&
+            this.y + thisOffset.top < other.y + other.height - otherOffset.bottom &&
+            this.y + this.height - thisOffset.bottom > other.y + otherOffset.top
         );
     }
 

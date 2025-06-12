@@ -15,6 +15,8 @@ class ThrowableObject extends MovableObject {
     }   
 
 
+
+    
     throw() {
         this.speedY = 10;
         this.applyGravity();

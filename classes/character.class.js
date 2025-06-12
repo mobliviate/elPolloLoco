@@ -47,6 +47,15 @@ class Character extends MovableObject {
 
     world;
 
+    isColliding(other, offset = {top: 190, bottom: 30, left: 55, right: 55}) {
+        return (
+            this.x + offset.left < other.x + other.width &&
+            this.x + this.width - offset.right > other.x &&
+            this.y + offset.top < other.y + other.height &&
+            this.y + this.height - offset.bottom > other.y
+        );
+    }
+
 
     constructor() {
         super().loadImg('img/2_character_pepe/2_walk/W-21.png');
@@ -59,6 +68,8 @@ class Character extends MovableObject {
         this.applyGravity();
 
     }
+
+
 
     animate() {
 

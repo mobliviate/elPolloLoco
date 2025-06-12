@@ -55,5 +55,8 @@ const level1 = new Level(
         new BackgroundObject('./img/5_background/layers/2_second_layer/1.png', 2876, 0),
         new BackgroundObject('./img/5_background/layers/1_first_layer/1.png', 2876, 0),
     ],  
+
+    Array.from({ length: 10 }, () => new Coin(200 + Math.random() * 2600)),
+    Array.from({ length: 10 }, () => new Bottle(200 + Math.random() * 2600)),
 );
 

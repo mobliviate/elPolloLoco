@@ -67,22 +67,22 @@ class StatusBar extends DrawableObject {
 
     updateCoinBar(percentage_coin) {
         this.percentage_coin = percentage_coin;
-        if (percentage_coin < 0) {
-            percentage_coin = 0;
-        }
-
-        let i = Math.floor(percentage_coin / 20);
+        if (percentage_coin < 0) percentage_coin = 0;
+        if (percentage_coin > 100) percentage_coin = 100;
+    
+        let i = Math.floor(percentage_coin / 10); 
+        if(i >= this.IMAGES_COIN.length) i = this.IMAGES_COIN.length - 1;
         let path = this.IMAGES_COIN[i];
         this.img = this.imageCache[path];
     }
 
     updateBottleBar(percentage_bottle) {
         this.percentage_bottle = percentage_bottle;
-        if (percentage_bottle < 0) {
-            percentage_bottle = 0;
-        }
-
-        let i = Math.floor(percentage_bottle / 20);
+        if (percentage_bottle < 0) percentage_bottle = 0;
+        if (percentage_bottle > 100) percentage_bottle = 100;
+    
+        let i = Math.floor(percentage_bottle / 10); 
+        if(i >= this.IMAGES_BOTTLE.length) i = this.IMAGES_BOTTLE.length - 1;
         let path = this.IMAGES_BOTTLE[i];
         this.img = this.imageCache[path];
     }
