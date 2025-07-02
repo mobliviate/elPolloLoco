@@ -34,6 +34,12 @@ class Endboss extends MovableObject {
         'img/4_enemie_boss_chicken/4_hurt/G23.png',
     ];
 
+    IMAGES_DEAD = [
+        'img/4_enemie_boss_chicken/5_dead/G24.png',
+        'img/4_enemie_boss_chicken/5_dead/G25.png',
+        'img/4_enemie_boss_chicken/5_dead/G26.png',
+    ];
+
     static STATES = {
         ALERT: 'alert',
         WALK: 'walk',
@@ -42,7 +48,7 @@ class Endboss extends MovableObject {
         DEAD: 'dead'
     };
 
-    health = 5;
+    health = 1;
     isHurt = false;
     state = Endboss.STATES.ALERT;
     lastHitTime = 0;
@@ -58,6 +64,7 @@ class Endboss extends MovableObject {
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_ATTACK);
         this.loadImages(this.IMAGES_HURT);
+        this.loadImages(this.IMAGES_DEAD); // Load dead images
         
         this.x = 2800;
         this.startX = this.x; // Set the starting position
@@ -92,13 +99,50 @@ class Endboss extends MovableObject {
         return false;
     }
 
-    defeated() {
+    async defeated() {
+        // Stop any existing animations
+        if (this.animationInterval) {
+            clearInterval(this.animationInterval);
+        }
+        
         this.state = Endboss.STATES.DEAD;
+        let currentFrame = 0;
+        
+        // Play dead animation once
+        return new Promise(resolve => {
+            this.animationInterval = setInterval(() => {
+                if (currentFrame < this.IMAGES_DEAD.length) {
+                    const imagePath = this.IMAGES_DEAD[currentFrame];
+                    if (this.imageCache[imagePath]) {
+                        this.img = this.imageCache[imagePath];
+                        currentFrame++;
+                    }
+                } else {
+                    clearInterval(this.animationInterval);
+                    this.showWinScreen();
+                    resolve();
+                }
+            }, 200); // Slower animation for better visibility
+        });
+    }
+    
+    showWinScreen() {
+        // Disable player movement and jumping
+        if (world && world.character && world.character[0]) {
+            const character = world.character[0];
+            character.canMove = false;
+            character.speed = 0;
+            character.speedY = 0;
+            character.applyGravity = false; // Disable gravity to prevent falling
+            character.gravity = 0; // Set gravity to 0 to stop any vertical movement
+        }
+        
         // Show victory screen
         const victoryScreen = document.createElement('div');
         const canvas = document.getElementById('canvas');
         const rect = canvas.getBoundingClientRect();
         
+        victoryScreen.id = 'victory-screen';
         victoryScreen.style.position = 'absolute';
         victoryScreen.style.top = rect.top + 'px';
         victoryScreen.style.left = rect.left + 'px';
@@ -108,8 +152,14 @@ class Endboss extends MovableObject {
         victoryScreen.style.backgroundSize = 'contain';
         victoryScreen.style.backgroundRepeat = 'no-repeat';
         victoryScreen.style.backgroundPosition = 'center';
-        victoryScreen.style.backgroundColor = 'black';
+        victoryScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
         victoryScreen.style.zIndex = '1000';
+        
+        // Add click handler to reload the game
+        victoryScreen.onclick = () => {
+            window.location.reload();
+        };
+        
         document.body.appendChild(victoryScreen);
     }
 
