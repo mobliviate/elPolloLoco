@@ -46,6 +46,7 @@ class Character extends MovableObject {
     ];
 
     world;
+    otherDirection = false; // false = right, true = left
 
     isColliding(other, offset = {top: 190, bottom: 30, left: 55, right: 55}) {
         return (

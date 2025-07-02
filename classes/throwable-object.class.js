@@ -3,25 +3,27 @@ class ThrowableObject extends MovableObject {
 
 
 
-    constructor(x, y) {
+    constructor(x, y, throwLeft = false) {
         super();
         this.loadImg('img/6_salsa_bottle/salsa_bottle.png');
         this.x = x;
         this.y = y;
         this.height = 100;
         this.width = 100;
-        this.throw();
-
+        this.throw(throwLeft);
     }   
-
-
-
     
-    throw() {
+    throw(throwLeft) {
         this.speedY = 10;
         this.applyGravity();
+        this.throwLeft = throwLeft;
+        
         setInterval(() => {
-            this.x += 5;
+            if (this.throwLeft) {
+                this.x -= 5; // Move left if throwLeft is true
+            } else {
+                this.x += 5; // Move right if throwLeft is false
+            }
         }, 10);
     }
 }

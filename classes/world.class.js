@@ -38,50 +38,99 @@ class World {
 
     checkThrowObjects() {
         const bottleBar = this.statusBarBottle;
+        const character = this.character[0];
         
         if (this.keyboard.D && bottleBar.percentage_bottle >= 10) {
-            this.throwableObjects.push(new ThrowableObject(this.character[0].x + 100, this.character[0].y + 250));
+            // Calculate x position based on character's direction
+            const xOffset = character.otherDirection ? -50 : 100;
+            const xPos = character.otherDirection ? character.x - 50 : character.x + 100;
             
+            // Create and add the throwable object with direction
+            const bottle = new ThrowableObject(xPos, character.y + 250, character.otherDirection);
+            this.throwableObjects.push(bottle);
+            
+            // Update bottle count
             let newBottleValue = bottleBar.percentage_bottle - 10;
             bottleBar.updateBottleBar(newBottleValue);
     
+            // Reset the throw key
             this.keyboard.D = false;
         }
     }
 
     checkCollisions() {
         const character = this.character[0];
+        const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
     
+        // Check collisions with enemies (chickens and endboss)
         this.level.enemies.forEach((enemy) => {
             if (enemy instanceof Chicken && !enemy.isDead) {
-                const landedOnChicken =
-                    character.isColliding(enemy) &&
-                    character.speedY < 0 &&
-                    character.y + character.height < enemy.y + enemy.height;
-    
-                if (landedOnChicken) {
-                    enemy.dead();
-                    character.speedY = 10;
-                    return;
-                }
-    
-                if (character.isColliding(enemy)) {
-                    character.hit();
-                    this.statusBarHealth.updateHealthBar(character.energy);
-                    if (character.energy <= 0) {
-                        character.dead();
-                    }
-                }
+                this.checkChickenCollision(character, enemy);
             }
         });
     
-        this.throwableObjects.forEach((bottle) => {
+        // Check collisions with throwable objects (salsa bottles)
+        this.throwableObjects.forEach((bottle, bottleIndex) => {
+            // Check collision with endboss
+            if (endboss && endboss.health > 0 && bottle.isColliding(endboss)) {
+                const hitSuccessful = endboss.hit();
+                if (hitSuccessful) {
+                    // Remove the bottle after hitting the endboss
+                    this.throwableObjects.splice(bottleIndex, 1);
+                }
+                return;
+            }
+            
+            // Check collision with chickens
             this.level.enemies.forEach((enemy) => {
                 if (enemy instanceof Chicken && !enemy.isDead && bottle.isColliding(enemy)) {
                     enemy.dead();
+                    // Remove the bottle after hitting a chicken
+                    const bottleIndex = this.throwableObjects.indexOf(bottle);
+                    if (bottleIndex > -1) {
+                        this.throwableObjects.splice(bottleIndex, 1);
+                    }
                 }
             });
         });
+        
+        // Check collision between character and endboss
+        if (endboss && endboss.health > 0 && character.isColliding(endboss)) {
+            character.hit();
+            this.statusBarHealth.updateHealthBar(character.energy);
+            if (character.energy <= 0) {
+                character.dead();
+                if (endboss.gameOver) {
+                    endboss.gameOver();
+                }
+            }
+        }
+    }
+
+    checkChickenCollision(character, enemy) {
+        const landedOnChicken =
+            character.isColliding(enemy) &&
+            character.speedY < 0 &&
+            character.y + character.height < enemy.y + enemy.height;
+
+        if (landedOnChicken) {
+            enemy.dead();
+            character.speedY = 10;
+            return;
+        }
+
+        if (character.isColliding(enemy)) {
+            character.hit();
+            this.statusBarHealth.updateHealthBar(character.energy);
+            if (character.energy <= 0) {
+                character.dead();
+                // Find endboss to show game over
+                const endboss = this.level.enemies.find(e => e instanceof Endboss);
+                if (endboss && endboss.gameOver) {
+                    endboss.gameOver();
+                }
+            }
+        }
     }
 
     checkItemCollection() {
