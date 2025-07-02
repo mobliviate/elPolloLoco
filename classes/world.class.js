@@ -10,6 +10,7 @@ class World {
     statusBarCoin = new StatusBar('coin', 40);
     statusBarBottle = new StatusBar('bottle', 80);
     throwableObjects = [];
+    gameOver = false;
 
 
 
@@ -100,9 +101,7 @@ class World {
             this.statusBarHealth.updateHealthBar(character.energy);
             if (character.energy <= 0) {
                 character.dead();
-                if (endboss.gameOver) {
-                    endboss.gameOver();
-                }
+                // The game over will be triggered after the death animation completes
             }
         }
     }
@@ -124,11 +123,7 @@ class World {
             this.statusBarHealth.updateHealthBar(character.energy);
             if (character.energy <= 0) {
                 character.dead();
-                // Find endboss to show game over
-                const endboss = this.level.enemies.find(e => e instanceof Endboss);
-                if (endboss && endboss.gameOver) {
-                    endboss.gameOver();
-                }
+                // The game over will be triggered after the death animation completes
             }
         }
     }
@@ -156,6 +151,11 @@ class World {
     }
 
     draw() {
+        if (this.gameOver) {
+            // Don't clear the screen to keep the last frame visible
+            return;
+        }
+        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
 
@@ -177,7 +177,6 @@ class World {
         this.addObjectsToMap(this.throwableObjects);
 
         this.ctx.translate(-this.camera_x, 0);
-
 
         let self = this;
         requestAnimationFrame(function () {

@@ -169,6 +169,11 @@ class Endboss extends MovableObject {
             return; // Exit if game over screen already exists
         }
 
+        // Set game over state in world
+        if (world) {
+            world.gameOver = true;
+        }
+
         // Disable player movement and jumping
         if (world && world.character && world.character[0]) {
             const character = world.character[0];
@@ -206,8 +211,14 @@ class Endboss extends MovableObject {
     }
 
     animate() {
-        // State-based behavior with 100ms interval for smoother animation
-        setInterval(() => {
+        // State-based behavior with 200ms interval for smoother animation
+        const animationInterval = setInterval(() => {
+            // Stop animation if game is over
+            if (world && world.gameOver) {
+                clearInterval(animationInterval);
+                return;
+            }
+
             switch (this.state) {
                 case Endboss.STATES.ALERT:
                     this.playAnimation(this.IMAGES_ALERT);
@@ -231,9 +242,10 @@ class Endboss extends MovableObject {
                     
                 case Endboss.STATES.DEAD:
                     // Stop moving when dead
+                    clearInterval(animationInterval);
                     break;
             }
-        }, 200); // 100ms interval for smoother animation
+        }, 200);
     }
     
     faceCharacter() {
