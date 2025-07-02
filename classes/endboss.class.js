@@ -164,21 +164,44 @@ class Endboss extends MovableObject {
     }
 
     gameOver() {
+        // Check if game over screen already exists
+        if (document.getElementById('game-over-screen')) {
+            return; // Exit if game over screen already exists
+        }
+
+        // Disable player movement and jumping
+        if (world && world.character && world.character[0]) {
+            const character = world.character[0];
+            character.canMove = false;
+            character.speed = 0;
+            character.speedY = 0;
+            character.applyGravity = false; // Disable gravity to prevent falling
+            character.gravity = 0; // Set gravity to 0 to stop any vertical movement
+        }
+
+        // Create and show game over screen
         const gameOverScreen = document.createElement('div');
         const canvas = document.getElementById('canvas');
         const rect = canvas.getBoundingClientRect();
         
+        gameOverScreen.id = 'game-over-screen';
         gameOverScreen.style.position = 'absolute';
         gameOverScreen.style.top = rect.top + 'px';
         gameOverScreen.style.left = rect.left + 'px';
         gameOverScreen.style.width = canvas.width + 'px';
         gameOverScreen.style.height = canvas.height + 'px';
-        gameOverScreen.style.backgroundImage = 'url("img/You won, you lost/Game Over.png")';
+        gameOverScreen.style.backgroundImage = 'url("img/You won, you lost/You lost b.png")';
         gameOverScreen.style.backgroundSize = 'contain';
         gameOverScreen.style.backgroundRepeat = 'no-repeat';
         gameOverScreen.style.backgroundPosition = 'center';
-        gameOverScreen.style.backgroundColor = 'black';
+        gameOverScreen.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
         gameOverScreen.style.zIndex = '1000';
+        
+        // Add click handler to reload the game
+        gameOverScreen.onclick = () => {
+            window.location.reload();
+        };
+        
         document.body.appendChild(gameOverScreen);
     }
 
