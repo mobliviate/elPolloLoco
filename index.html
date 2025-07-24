@@ -1,13 +1,20 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Pollo Loco</title>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zabras&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
-    <title>El Pollo Loco</title>
+
+    <!-- Classes -->
     <script src="classes/drawable-object.class.js"></script>
     <script src="classes/movable-object.class.js"></script>
     <script src="classes/status-bar.class.js"></script>
@@ -18,20 +25,97 @@
     <script src="classes/background-object.class.js"></script>
     <script src="classes/character.class.js"></script>
     <script src="classes/chicken.class.js"></script>
+    <script src="classes/chicken-small.class.js"></script>
     <script src="classes/level.class.js"></script>
     <script src="classes/endboss.class.js"></script>
     <script src="classes/bottle.class.js"></script>
     <script src="classes/coin.class.js"></script>
     <script src="levels/level1.js"></script>
 
+    <!-- Game / Helpers -->
+    <script src="js/audio-manager.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/mobile-controls.js"></script>
+    <script src="js/orientation.js"></script>
     <script src="js/game.js"></script>
 </head>
-<body onload="init()">
-    <h1>El Pollo Loco</h1>
+<body onload="boot()">
 
-    <canvas id="canvas" width="720" height="480"></canvas>
+    <!-- Start Screen -->
+    <div id="start-screen" class="overlay fullscreen">
+        <div class="start-content">
+            <img src="img/9_intro_outro_screens/start/startscreen_1.png" alt="Start" class="start-image">
+            <div class="start-buttons">
+                <button id="btn-start" class="btn primary">Start Game</button>
+                <button id="btn-impressum-open" class="btn secondary">Imprint</button>
+                <button id="btn-mute-toggle" class="btn secondary">Mute: OFF</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- Orientation Overlay (mobile only) -->
+    <div id="orientation-overlay" class="overlay fullscreen hidden">
+        <div class="orientation-box">
+            <p>Please rotate your device to landscape.</p>
+        </div>
+    </div>
 
+    <!-- Game Container -->
+    <div id="game-container">
+        <h1>El Pollo Loco</h1>
+
+        <canvas id="canvas" width="720" height="480"></canvas>
+
+        <!-- Mobile Controls -->
+        <div id="mobile-controls" class="hidden">
+            <div class="mc-left">
+                <button id="mc-left" class="mc-btn">◀</button>
+                <button id="mc-right" class="mc-btn">▶</button>
+                <button id="mc-jump" class="mc-btn">⤴</button>
+            </div>
+            <div class="mc-right">
+                <button id="mc-throw" class="mc-btn">🧴</button>
+            </div>
+        </div>
+
+        <!-- Key Mapping (Desktop only) -->
+        <div id="keymap">
+            <h2>Controls</h2>
+            <ul>
+                <li>Move Left: ←</li>
+                <li>Move Right: →</li>
+                <li>Jump: ↑</li>
+                <li>Throw Bottle: D</li>
+                <li>Pause: P</li>
+                <li>Toggle Debug: F2</li>
+                <li>Mute/Unmute: Button on Start Screen</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Game Over / Win Screens -->
+    <div id="endscreen" class="overlay fullscreen hidden">
+        <div id="endscreen-inner">
+            <div id="endscreen-content"></div>
+            <div class="end-buttons">
+                <button id="btn-restart" class="btn primary">Restart</button>
+                <button id="btn-home" class="btn secondary">Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Impressum Overlay -->
+    <div id="impressum" class="overlay fullscreen hidden">
+        <div class="impressum-box">
+            <h2>Imprint</h2>
+            <p><strong>Provider:</strong> [Name Placeholder]</p>
+            <p><strong>Address:</strong> [Street Placeholder], [City Placeholder]</p>
+            <p><strong>Contact:</strong> [Email Placeholder] | [Phone Placeholder]</p>
+            <p><strong>Liability Notice:</strong> [Liability disclaimer placeholder...]</p>
+            <p><strong>Copyright:</strong> [Copyright notice placeholder...]</p>
+            <button id="btn-impressum-close" class="btn primary">Close</button>
+        </div>
+    </div>
 
 </body>
 </html>

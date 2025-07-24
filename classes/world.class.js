@@ -1,7 +1,8 @@
+// classes/world.class.js
 class World {
 
     character = [new Character()];
-    level = level1;
+    level;
     canvas;
     ctx;
     keyboard;
@@ -11,151 +12,204 @@ class World {
     statusBarBottle = new StatusBar('bottle', 80);
     throwableObjects = [];
     gameOver = false;
+    paused = false;
 
-
-
-    constructor(canvas, keyboard) {
+    /**
+     * @param {HTMLCanvasElement} canvas 
+     * @param {Keyboard} keyboard 
+     * @param {Level} level
+     */
+    constructor(canvas, keyboard, level) {
         this.keyboard = keyboard;
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.level = level;
+
         this.statusBarCoin.updateCoinBar(0);
         this.statusBarBottle.updateBottleBar(0);
-        this.draw();
+
         this.setWorld();
+        this.startEnvironmentAnimations();
+        this.draw();
         this.run();
     }
 
+    /**
+     * Connect character with world.
+     */
     setWorld() {
         this.character[0].world = this;
     }
 
+    /**
+     * Starts background/cloud animations once game starts.
+     */
+    startEnvironmentAnimations() {
+        this.level.clouds.forEach(function (cloud) {
+            if (typeof cloud.animate === 'function') {
+                cloud.animate();
+            }
+        });
+    }
+
+    /**
+     * Main game loop logic executed in interval.
+     */
     run() {
-        setInterval(() => {
-            this.checkCollisions();
-            this.checkThrowObjects();
-            this.checkItemCollection();
+        let self = this;
+        setInterval(function () {
+            if (self.paused || self.gameOver) {
+                return;
+            }
+            self.checkCollisions();
+            self.checkThrowObjects();
+            self.checkItemCollection();
         }, 100);
     }
 
+    /**
+     * Toggle pause.
+     */
+    togglePause() {
+        this.paused = !this.paused;
+    }
+
+    /**
+     * Handles bottle throwing.
+     */
     checkThrowObjects() {
         const bottleBar = this.statusBarBottle;
         const character = this.character[0];
-        
+
         if (this.keyboard.D && bottleBar.percentage_bottle >= 10) {
-            // Calculate x position based on character's direction
-            const xOffset = character.otherDirection ? -50 : 100;
-            const xPos = character.otherDirection ? character.x - 50 : character.x + 100;
-            
-            // Create and add the throwable object with direction
-            const bottle = new ThrowableObject(xPos, character.y + 250, character.otherDirection);
+            const throwLeft = character.otherDirection;
+            const xPos = throwLeft ? character.x - 50 : character.x + 100;
+            const bottle = new ThrowableObject(xPos, character.y + 250, throwLeft);
             this.throwableObjects.push(bottle);
-            
-            // Update bottle count
-            let newBottleValue = bottleBar.percentage_bottle - 10;
-            bottleBar.updateBottleBar(newBottleValue);
-    
-            // Reset the throw key
+            audioManager.play('bottle_throw');
+            bottleBar.updateBottleBar(bottleBar.percentage_bottle - 10);
             this.keyboard.D = false;
         }
     }
 
+    /**
+     * Collision checks.
+     */
     checkCollisions() {
         const character = this.character[0];
-        const endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
-    
-        // Check collisions with enemies (chickens and endboss)
-        this.level.enemies.forEach((enemy) => {
-            if (enemy instanceof Chicken && !enemy.isDead) {
+        const endboss = this.level.enemies.find(function (enemy) { return enemy instanceof Endboss; });
+
+        this.level.enemies.forEach(function (enemy) {
+            if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
                 this.checkChickenCollision(character, enemy);
             }
-        });
-    
-        // Check collisions with throwable objects (salsa bottles)
-        this.throwableObjects.forEach((bottle, bottleIndex) => {
-            // Check collision with endboss
+        }.bind(this));
+
+        this.throwableObjects.forEach(function (bottle) {
             if (endboss && endboss.health > 0 && bottle.isColliding(endboss)) {
                 const hitSuccessful = endboss.hit();
                 if (hitSuccessful) {
-                    // Remove the bottle after hitting the endboss
-                    this.throwableObjects.splice(bottleIndex, 1);
+                    audioManager.play('boss_hurt');
+                    this.removeBottle(bottle);
                 }
                 return;
             }
-            
-            // Check collision with chickens
-            this.level.enemies.forEach((enemy) => {
-                if (enemy instanceof Chicken && !enemy.isDead && bottle.isColliding(enemy)) {
+            this.level.enemies.forEach(function (enemy) {
+                if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead && bottle.isColliding(enemy)) {
                     enemy.dead();
-                    // Remove the bottle after hitting a chicken
-                    const bottleIndex = this.throwableObjects.indexOf(bottle);
-                    if (bottleIndex > -1) {
-                        this.throwableObjects.splice(bottleIndex, 1);
-                    }
+                    audioManager.play('enemy_hit');
+                    this.removeBottle(bottle);
                 }
-            });
-        });
-        
-        // Check collision between character and endboss
+            }.bind(this));
+        }.bind(this));
+
         if (endboss && endboss.health > 0 && character.isColliding(endboss)) {
             character.hit();
+            audioManager.play('hurt');
             this.statusBarHealth.updateHealthBar(character.energy);
             if (character.energy <= 0) {
                 character.dead();
-                // The game over will be triggered after the death animation completes
             }
         }
     }
 
+    /**
+     * Removes bottle from array.
+     * @param {ThrowableObject} bottle 
+     */
+    removeBottle(bottle) {
+        const idx = this.throwableObjects.indexOf(bottle);
+        if (idx > -1) {
+            this.throwableObjects.splice(idx, 1);
+        }
+        audioManager.play('bottle_splash');
+    }
+
+    /**
+     * Only kill chickens when the character lands clearly from above.
+     * Adjusted to also work for big chickens.
+     * @param {Character} character 
+     * @param {MovableObject} enemy 
+     */
     checkChickenCollision(character, enemy) {
-        const landedOnChicken =
-            character.isColliding(enemy) &&
-            character.speedY < 0 &&
-            character.y + character.height < enemy.y + enemy.height;
+        if (!character.isColliding(enemy)) {
+            return;
+        }
+
+        const fallingDown = character.speedY < 0;
+        const charOffset = MovableObject.getHitboxOffset(character.constructor.name);
+        const enemyOffset = MovableObject.getHitboxOffset(enemy.constructor.name);
+
+        const charFeet = character.y + character.height - charOffset.bottom;
+        const enemyHead = enemy.y + enemyOffset.top;
+
+        const tolerance = 60; // small buffer to ensure top-hit is recognized
+        const landedOnChicken = fallingDown && charFeet <= (enemyHead + tolerance);
 
         if (landedOnChicken) {
             enemy.dead();
-            character.speedY = 10;
-            return;
-        }
-
-        if (character.isColliding(enemy)) {
+            character.speedY = 12;
+            audioManager.play('enemy_hit');
+        } else {
             character.hit();
+            audioManager.play('hurt');
             this.statusBarHealth.updateHealthBar(character.energy);
             if (character.energy <= 0) {
                 character.dead();
-                // The game over will be triggered after the death animation completes
             }
         }
     }
 
+    /**
+     * Checks collection of coins and bottles.
+     */
     checkItemCollection() {
         const character = this.character[0];
-    
-        this.level.coins.forEach((coin, index) => {
+
+        this.level.coins.forEach(function (coin, index) {
             if (character.isColliding(coin)) {
                 this.level.coins.splice(index, 1);
-                this.statusBarCoin.updateCoinBar(
-                    Math.min(100, this.statusBarCoin.percentage_coin + 10)
-                );
+                this.statusBarCoin.updateCoinBar(Math.min(100, this.statusBarCoin.percentage_coin + 10));
+                audioManager.play('coin');
             }
-        });
-    
-        this.level.bottles.forEach((bottle, index) => {
+        }.bind(this));
+
+        this.level.bottles.forEach(function (bottle, index) {
             if (character.isColliding(bottle)) {
                 this.level.bottles.splice(index, 1);
-                this.statusBarBottle.updateBottleBar(
-                    Math.min(100, this.statusBarBottle.percentage_bottle + 10)
-                );
+                this.statusBarBottle.updateBottleBar(Math.min(100, this.statusBarBottle.percentage_bottle + 10));
             }
-        });
+        }.bind(this));
     }
 
+    /**
+     * Drawing loop using requestAnimationFrame.
+     */
     draw() {
         if (this.gameOver) {
-            // Don't clear the screen to keep the last frame visible
             return;
         }
-        
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
 
@@ -184,12 +238,20 @@ class World {
         });
     }
 
+    /**
+     * Helper to add multiple objects.
+     * @param {DrawableObject[]} objects 
+     */
     addObjectsToMap(objects) {
-        objects.forEach(object => {
+        objects.forEach(function (object) {
             this.addToMap(object);
-        });
+        }.bind(this));
     }
 
+    /**
+     * Adds single object considering flip.
+     * @param {MovableObject} movableObject 
+     */
     addToMap(movableObject) {
         if (movableObject.otherDirection) {
             this.flipImage(movableObject);
@@ -203,6 +265,10 @@ class World {
         }
     }
 
+    /**
+     * Flips the image horizontally.
+     * @param {MovableObject} movableObject 
+     */
     flipImage(movableObject) {
         this.ctx.save();
         this.ctx.translate(movableObject.width, 0);
@@ -210,9 +276,28 @@ class World {
         movableObject.x = -movableObject.x;
     }
 
+    /**
+     * Restores flipped image.
+     * @param {MovableObject} movableObject 
+     */
     flipImageBack(movableObject) {
         movableObject.x = -movableObject.x;
         this.ctx.restore();
+    }
 
+    /**
+     * Shows game over.
+     */
+    showGameOver() {
+        this.gameOver = true;
+        showEndscreen('lose');
+    }
+
+    /**
+     * Shows win screen.
+     */
+    showWin() {
+        this.gameOver = true;
+        showEndscreen('win');
     }
 }
