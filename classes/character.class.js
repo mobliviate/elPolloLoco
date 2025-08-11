@@ -1,4 +1,5 @@
 // classes/character.class.js
+// classes/character.class.js
 class Character extends MovableObject {
 
     height = 480;
@@ -77,7 +78,7 @@ class Character extends MovableObject {
     otherDirection = false;
 
     constructor() {
-        super().loadImg('img/2_character_pepe/2_walk/W-21.png');
+        super().loadImg('img/2_character_pepe/1_idle/idle/I-1.png'); // Start: IDLE
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_HURT);
@@ -90,24 +91,33 @@ class Character extends MovableObject {
     }
 
     /**
-     * Marks character as active (for idle/sleep timer).
+     * Markiert Aktivität (für Idle/Sleep Timer).
      */
     markActive() {
         this.lastActiveTime = Date.now();
     }
 
     /**
-     * Is character dead?
+     * Ist eine horizontale Bewegung aktiv?
+     * @returns {boolean}
+     */
+    isMoving() {
+        if (!this.world || !this.world.keyboard) { return false; }
+        return !!(this.world.keyboard.LEFT || this.world.keyboard.RIGHT);
+    }
+
+    /**
+     * Ist Character tot?
      */
     dead() {
         return this.energy <= 0;
     }
 
     /**
-     * Plays death animation and ends game.
+     * Todesanimation und Game Over.
      */
     async playDeathAnimation() {
-        if (this.isDeadAnimationPlayed) return;
+        if (this.isDeadAnimationPlayed) { return; }
         this.isDeadAnimationPlayed = true;
         this.canMove = false;
         this.speed = 0;
@@ -117,15 +127,13 @@ class Character extends MovableObject {
             await new Promise(function (resolve) { setTimeout(resolve, 100); });
         }
 
-        if (this.world) {
-            this.world.showGameOver();
-        }
+        if (this.world) { this.world.showGameOver(); }
     }
 
     /**
-     * Collision detection override with tighter top-hit requirement.
-     * @param {MovableObject} other 
-     * @param {object} offset 
+     * Engere Kollision oben.
+     * @param {MovableObject} other
+     * @param {object} offset
      */
     isColliding(other, offset) {
         let defaultOffset = { top: 190, bottom: 30, left: 55, right: 55 };
@@ -133,33 +141,32 @@ class Character extends MovableObject {
     }
 
     /**
-     * Main character loop.
+     * Haupt-Loop.
      */
     animate() {
         let self = this;
 
-        // Movement loop
+        // Bewegung
         setInterval(function () {
-            if (!self.world || self.world.paused) return;
-            if (self.dead()) return;
-            if (!self.canMove) return;
-
+            if (!self.world || self.world.paused) { return; }
+            if (self.dead()) { return; }
+            if (!self.canMove) { return; }
             self.handleMovement();
             self.world.camera_x = -self.x + 100;
         }, 10);
 
-        // Animation state loop
+        // Animationszustände
         setInterval(function () {
-            if (!self.world || self.world.paused) return;
+            if (!self.world || self.world.paused) { return; }
 
             if (self.dead()) {
-                if (!self.isDeadAnimationPlayed) {
-                    self.playDeathAnimation();
-                }
+                if (!self.isDeadAnimationPlayed) { self.playDeathAnimation(); }
             } else if (self.isHurt()) {
                 self.playAnimation(self.IMAGES_HURT);
             } else if (self.isAboveGround()) {
                 self.playAnimation(self.IMAGES_JUMPING);
+            } else if (self.isMoving()) {
+                self.playAnimation(self.IMAGES_WALKING);
             } else {
                 self.handleIdleSleep();
             }
@@ -167,7 +174,7 @@ class Character extends MovableObject {
     }
 
     /**
-     * Handles movement based on keyboard.
+     * Bewegung per Tastatur.
      */
     handleMovement() {
         if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -190,22 +197,12 @@ class Character extends MovableObject {
     }
 
     /**
-     * Handles idle and sleep animations.
+     * Idle oder Sleep je nach Inaktivität.
      */
     handleIdleSleep() {
-        const idleMs = 3000;
         const sleepMs = 15000;
         const inactive = Date.now() - this.lastActiveTime;
-
-        if (inactive >= sleepMs) {
-            this.playAnimation(this.IMAGES_SLEEP);
-            if (inactive - sleepMs < 300) {
-                audioManager.play('snore');
-            }
-        } else if (inactive >= idleMs) {
-            this.playAnimation(this.IMAGES_IDLE);
-        } else {
-            this.playAnimation(this.IMAGES_WALKING);
-        }
+        if (inactive >= sleepMs) { this.playAnimation(this.IMAGES_SLEEP); }
+        else { this.playAnimation(this.IMAGES_IDLE); }
     }
 }

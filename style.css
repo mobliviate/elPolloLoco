@@ -3,7 +3,6 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
     font-family: 'Zabras', cursive;
     background-image: url('./img/background_wueste.jpg');
     background-size: cover;
@@ -15,8 +14,8 @@ html, body {
 h1 {
     color: #ff9900;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    font-size: 3rem;
-    margin: 0 0 20px 0;
+    font-size: clamp(1.6rem, 3.5vw, 3rem);
+    margin: 0 0 0 0;
     text-align: center;
     z-index: 1;
 }
@@ -30,54 +29,57 @@ h1 {
     max-width: 95%;
     padding: 20px;
     box-sizing: border-box;
+    overflow: hidden; /* für Blur-Rand */
 }
 
+/* Blur-Hintergrund im Fullscreen via Pseudo */
+#game-container::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('./img/background_wueste.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    filter: blur(6px);
+    transform: scale(1.06);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+#game-container:fullscreen::before { opacity: 1; }
+#game-container:-webkit-full-screen::before { opacity: 1; }
+
+/* Header & FS-Buttons */
+#game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+#fullscreen-button {
+    cursor: pointer;
+    z-index: 1000;
+    height: 40px;
+}
+#exit-fullscreen-button {
+    display: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 1200;
+}
+
+/* Canvas */
 canvas {
     background-color: rgba(0,0,0,0.8);
     border-radius: 5px;
-}
-
-/* Keymap */
-#keymap {
-    margin-top: 15px;
-    background: rgba(0,0,0,0.6);
-    padding: 10px 15px;
-    border-radius: 8px;
-    max-width: 720px;
-}
-
-#keymap h2 {
-    margin: 0 0 8px 0;
-    font-size: 1.4rem;
-    color: #ff9900;
-}
-
-#keymap ul {
-    margin: 0;
-    padding-left: 20px;
-    font-size: 1rem;
-}
-
-/* Buttons */
-.btn {
-    font-family: 'Zabras', cursive;
-    font-size: 1.4rem;
-    padding: 8px 18px;
-    margin: 8px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 0 6px rgba(0,0,0,0.5);
-}
-
-.btn.primary {
-    background: #ff9900;
-    color: #000;
-}
-
-.btn.secondary {
-    background: #444;
-    color: #fff;
+    width: 90vw;
+    max-width: 1200px;
+    height: auto;
+    aspect-ratio: 3 / 2;
 }
 
 /* Overlays */
@@ -87,34 +89,20 @@ canvas {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 999;
+    z-index: 2000;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
-.fullscreen {
-    background: rgba(0,0,0,0.85);
-}
-
-.hidden {
-    display: none;
-}
+.fullscreen { background: rgba(0,0,0,0.85); }
+.hidden { display: none; }
 
 /* Start Screen */
-.start-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.start-image {
-    max-width: 80%;
-    height: auto;
-    margin-bottom: 20px;
-}
-
+.start-content { display: flex; flex-direction: column; align-items: center; }
+.start-image { max-width: 80%; height: auto; margin-bottom: 20px; }
 .start-buttons {
+    position: relative;
+    bottom: 53px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -122,38 +110,74 @@ canvas {
     flex-wrap: wrap;
 }
 
-/* Endscreen */
+/* Endscreen (responsive, landscape-first) */
 #endscreen-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 2vh 2vw;
+    max-width: 100%;
+    box-sizing: border-box;
 }
-
 #endscreen-content {
-    width: 720px;
-    height: 480px;
+    width: min(92vw, 1200px);
+    max-height: 65vh;
+    aspect-ratio: 3 / 2;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     position: relative;
 }
-
 .end-buttons {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: clamp(8px, 2vw, 20px);
+    flex-wrap: wrap;
+}
+@media (max-height: 420px) {
+    #endscreen-content { max-height: 55vh; }
+    .btn { padding: 6px 12px; }
 }
 
-/* Impressum */
-.impressum-box {
-    background: rgba(0,0,0,0.9);
-    padding: 25px 35px;
-    max-width: 600px;
+/* Buttons (Zabras erzwingen) */
+button, .btn, .mc-btn {
+    font-family: 'Zabras', cursive !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    padding: 10px 20px;
+    margin: 8px;
+    border: 2px solid rgba(0,0,0,0.4);
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.7);
-    overflow-y: auto;
-    max-height: 90%;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    text-shadow: 0 1px 0 rgba(255,255,255,0.15);
+    transition: transform .06s ease, box-shadow .15s ease, filter .15s ease, background .15s ease;
+}
+.btn.primary {
+    color: #1a1200;
+    background: linear-gradient(180deg, #ffbf47 0%, #ff9900 100%);
+    border-color: rgba(160,90,0,0.55);
+}
+.btn.secondary {
+    color: #fff;
+    background: linear-gradient(180deg, #5b5b5b 0%, #3a3a3a 100%);
+    border-color: rgba(0,0,0,0.55);
+}
+.btn:hover { filter: brightness(1.05); box-shadow: 0 8px 18px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.2); }
+.btn:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(0,0,0,0.1); }
+.btn:focus-visible {
+    outline: 3px solid rgba(255,153,0,0.65);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.5), 0 0 0 6px rgba(255,153,0,0.35);
 }
 
 /* Orientation Overlay */
@@ -161,53 +185,115 @@ canvas {
     background: rgba(0,0,0,0.85);
     padding: 25px 35px;
     border-radius: 12px;
-    font-size: 1.6rem;
+    font-size: clamp(1.1rem, 3vw, 1.6rem);
     text-align: center;
     color: #ff9900;
 }
 
-/* Mobile Controls */
-#mobile-controls {
-    position: absolute;
+/* =========================
+   Keymap – horizontal unter
+   ========================= */
+#keymap {
     width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.mc-left, .mc-right {
-    position: absolute;
-    bottom: 10px;
     display: flex;
+    justify-content: center;
+    gap: clamp(8px, 3vw, 28px);
+    align-items: center;
+    padding: 10px 0 0 0;
+    flex-wrap: wrap;
+}
+#keymap .km-item {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+@media (max-width: 768px) { #keymap { display: none; } }
+
+/* ==========================================
+   Mobile Controls – sichtbar, wenn nicht .hidden
+   ========================================== */
+
+/* Grundlayout */
+#mobile-controls {
+    width: 100%;
+    margin-top: 10px;           /* Desktop-Fallback */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 1100;
+}
+
+/* WICHTIG: .hidden muss trotz ID-Spezifität greifen */
+#mobile-controls.hidden {
+    display: none !important;
+}
+
+/* Struktur links/rechts & Button-Reihen */
+#mobile-controls .mc-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 10px;
-    pointer-events: auto;
+}
+#mobile-controls .mc-row {
+    display: flex;
+    gap: 12px;
+    padding: 5px;
+}
+#mobile-controls .mc-right {
+    display: flex;
+    align-items: center;
+    padding: 5px;
 }
 
-.mc-left {
-    left: 10px;
-    flex-direction: column;
-}
-
-.mc-right {
-    right: 10px;
-    flex-direction: column;
-}
-
+/* Buttons */
 .mc-btn {
-    font-size: 2rem;
-    background: rgba(255,255,255,0.2);
+    font-size: clamp(1.4rem, 4.5vw, 2rem);
     color: #fff;
-    border: 2px solid rgba(255,255,255,0.5);
+    background: rgba(30,30,30,0.35);
+    border: 2px solid rgba(255,255,255,0.55);
     padding: 12px 18px;
-    border-radius: 12px;
-    backdrop-filter: blur(3px);
-    pointer-events: auto;
+    border-radius: 14px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    transition: transform .06s ease, box-shadow .15s ease, filter .15s ease;
 }
+.mc-btn:hover { filter: brightness(1.08); }
+.mc-btn:active { transform: scale(0.96); }
+.mc-btn:focus-visible { outline: 3px solid rgba(255,255,255,0.7); outline-offset: 2px; }
 
-/* Hide keymap on small mobile */
-@media (max-width: 768px) {
-    #keymap {
-        display: none;
+/* Fixiert am unteren Rand auf mobilen Viewports (auch Fullscreen) */
+@media (max-width: 900px) {
+    #mobile-controls {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+
     }
+
+    /* Im Fullscreen Header ausblenden, Exit-Icon zeigen */
+    #game-container:fullscreen #game-header { display: none; }
+    #game-container:-webkit-full-screen #game-header { display: none; }
+
+    #game-container:fullscreen canvas {
+        height: 90vh;
+        width: auto;
+        aspect-ratio: 3 / 2;
+    }
+    #game-container:-webkit-full-screen canvas {
+        height: 90vh;
+        width: auto;
+        aspect-ratio: 3 / 2;
+    }
+
+    #game-container:fullscreen #exit-fullscreen-button { display: block; }
+    #game-container:-webkit-full-screen #exit-fullscreen-button { display: block; }
+
+    #game-container:fullscreen #fullscreen-button { display: none; }
+    #game-container:-webkit-full-screen #fullscreen-button { display: none; }
 }

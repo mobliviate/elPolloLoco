@@ -53,25 +53,41 @@
         </div>
     </div>
 
-    <!-- Orientation Overlay (mobile only) -->
-    <div id="orientation-overlay" class="overlay fullscreen hidden">
-        <div class="orientation-box">
-            <p>Please rotate your device to landscape.</p>
-        </div>
-    </div>
-
-    <!-- Game Container -->
+    <!-- Game Container (Fullscreen-Ziel) -->
     <div id="game-container">
-        <h1>El Pollo Loco</h1>
+        <div id="game-header">
+            <h1>El Pollo Loco</h1>
+            <img
+                src="img/fullscreen.png"
+                alt="Fullscreen"
+                id="fullscreen-button"
+                onclick="enterFullscreen(document.getElementById('game-container'))">
+        </div>
+
+        <!-- Exit-Fullscreen-Icon (sichtbar nur im Fullscreen, per CSS) -->
+        <img
+            src="img/fullscreen.png"
+            alt="Exit Fullscreen"
+            id="exit-fullscreen-button"
+            onclick="exitFullscreen()">
+
+        <!-- Orientation Overlay (MOVED INSIDE game-container for fullscreen z-order) -->
+        <div id="orientation-overlay" class="overlay fullscreen hidden">
+            <div class="orientation-box">
+                <p>Please rotate your device to landscape.</p>
+            </div>
+        </div>
 
         <canvas id="canvas" width="720" height="480"></canvas>
 
         <!-- Mobile Controls -->
         <div id="mobile-controls" class="hidden">
             <div class="mc-left">
-                <button id="mc-left" class="mc-btn">◀</button>
-                <button id="mc-right" class="mc-btn">▶</button>
-                <button id="mc-jump" class="mc-btn">⤴</button>
+                <button id="mc-jump" class="mc-btn mc-jump">⤴</button>
+                <div class="mc-row">
+                    <button id="mc-left" class="mc-btn">◀</button>
+                    <button id="mc-right" class="mc-btn">▶</button>
+                </div>
             </div>
             <div class="mc-right">
                 <button id="mc-throw" class="mc-btn">🧴</button>
@@ -79,27 +95,21 @@
         </div>
 
         <!-- Key Mapping (Desktop only) -->
-        <div id="keymap">
-            <h2>Controls</h2>
-            <ul>
-                <li>Move Left: ←</li>
-                <li>Move Right: →</li>
-                <li>Jump: ↑</li>
-                <li>Throw Bottle: D</li>
-                <li>Pause: P</li>
-                <li>Toggle Debug: F2</li>
-                <li>Mute/Unmute: Button on Start Screen</li>
-            </ul>
+        <div id="keymap" class="keymap">
+            <div class="km-item">← Left</div>
+            <div class="km-item">→ Right</div>
+            <div class="km-item">↑ Jump</div>
+            <div class="km-item">D Throw</div>
         </div>
-    </div>
 
-    <!-- Game Over / Win Screens -->
-    <div id="endscreen" class="overlay fullscreen hidden">
-        <div id="endscreen-inner">
-            <div id="endscreen-content"></div>
-            <div class="end-buttons">
-                <button id="btn-restart" class="btn primary">Restart</button>
-                <button id="btn-home" class="btn secondary">Home</button>
+        <!-- Game Over / Win Screens -->
+        <div id="endscreen" class="overlay fullscreen hidden">
+            <div id="endscreen-inner">
+                <div id="endscreen-content"></div>
+                <div class="end-buttons">
+                    <button id="btn-restart" class="btn primary">Restart</button>
+                    <button id="btn-home" class="btn secondary">Home</button>
+                </div>
             </div>
         </div>
     </div>

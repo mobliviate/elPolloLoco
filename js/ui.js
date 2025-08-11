@@ -1,85 +1,159 @@
 // js/ui.js
-/* global startGame, goHome, restartGame, audioManager, setMuteButtonState, toggleMobileControls */
+/* global audioManager */
 
-let DEBUG_MODE = false;
+/* -----------------------------------------------------------
+   UI Init
+----------------------------------------------------------- */
 
 /**
- * Initializes UI buttons and overlays.
+ * Initialisiert UI-Buttons und Overlays.
  */
 function initUI() {
-    document.getElementById('btn-start').addEventListener('click', function () {
-        startGame();
-    });
-
-    document.getElementById('btn-impressum-open').addEventListener('click', function () {
-        showImpressum(true);
-    });
-
-    document.getElementById('btn-impressum-close').addEventListener('click', function () {
-        showImpressum(false);
-    });
-
-    document.getElementById('btn-mute-toggle').addEventListener('click', function () {
+    bindClick('btn-start', startGame);
+    bindClick('btn-impressum-open', function () { showImpressum(true); });
+    bindClick('btn-impressum-close', function () { showImpressum(false); });
+    bindClick('btn-restart', restartGame);
+    bindClick('btn-home', goHome);
+    bindClick('btn-mute-toggle', function () {
         audioManager.toggleMute();
         setMuteButtonState(audioManager.isMuted());
     });
-
-    document.getElementById('btn-restart').addEventListener('click', function () {
-        restartGame();
-    });
-
-    document.getElementById('btn-home').addEventListener('click', function () {
-        goHome();
-    });
+    initFullscreenObservers();
 }
 
 /**
- * Shows or hides the imprint overlay.
+ * Bindet Click-Handler an ein Element per ID.
+ * @param {string} id
+ * @param {Function} handler
+ */
+function bindClick(id, handler) {
+    let el = document.getElementById(id);
+    if (el) { el.addEventListener('click', handler); }
+}
+
+/* -----------------------------------------------------------
+   Impressum & Endscreen & Mute
+----------------------------------------------------------- */
+
+/**
+ * Öffnet/Schließt Impressum.
  * @param {boolean} show
  */
 function showImpressum(show) {
-    var imp = document.getElementById('impressum');
+    let imp = document.getElementById('impressum');
     if (show) {
         imp.classList.remove('hidden');
+        toggleMobileControls(false);
     } else {
         imp.classList.add('hidden');
+        updateMobileControlsVisibility();
     }
 }
 
 /**
- * Updates the mute button label.
+ * Aktualisiert Label des Mute-Buttons.
  * @param {boolean} muted
  */
 function setMuteButtonState(muted) {
-    var btn = document.getElementById('btn-mute-toggle');
+    let btn = document.getElementById('btn-mute-toggle');
     btn.textContent = 'Mute: ' + (muted ? 'ON' : 'OFF');
 }
 
 /**
- * Displays the endscreen (“win” or “lose”) and stops music/SFX.
+ * Zeigt Endscreen (“win”/“lose”) und pausiert Audio.
  * @param {string} type
  */
 function showEndscreen(type) {
-    var end = document.getElementById('endscreen');
-    var cont = document.getElementById('endscreen-content');
-    var imgPath = type === 'win'
+    let end = document.getElementById('endscreen');
+    let cont = document.getElementById('endscreen-content');
+    let imgPath = type === 'win'
         ? 'img/You won, you lost/You Won B.png'
         : 'img/You won, you lost/You lost b.png';
-
     cont.style.backgroundImage = 'url("' + imgPath + '")';
-    audioManager.pauseAll(true);            // stop all audio when endscreen appears
+    audioManager.pauseAll(true);
     end.classList.remove('hidden');
+    toggleMobileControls(false);
 }
 
+/* -----------------------------------------------------------
+   Mobile Controls Sichtbarkeit (wird auch extern genutzt)
+----------------------------------------------------------- */
+
 /**
- * Toggles visibility of mobile controls.
+ * Zeigt/verbirgt die Mobile-Controls-Leiste.
  * @param {boolean} show
  */
 function toggleMobileControls(show) {
-    var mc = document.getElementById('mobile-controls');
-    if (show) {
-        mc.classList.remove('hidden');
-    } else {
-        mc.classList.add('hidden');
-    }
+    let mc = document.getElementById('mobile-controls');
+    if (!mc) { return; }
+    if (show) { mc.classList.remove('hidden'); }
+    else { mc.classList.add('hidden'); }
+}
+
+/* -----------------------------------------------------------
+   Fullscreen – stabil & Cross-Browser
+----------------------------------------------------------- */
+
+/**
+ * Liefert true, wenn ein Element im Fullscreen ist.
+ * @returns {boolean}
+ */
+function isFullscreenActive() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+}
+
+/**
+ * Versucht Fullscreen anzufordern (Cross-Browser).
+ * @param {HTMLElement} el
+ */
+function requestFullscreenSafe(el) {
+    if (!el) { return; }
+    if (el.requestFullscreen) { el.requestFullscreen(); return; }
+    if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); return; }
+    if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
+}
+
+/**
+ * Verlässt Fullscreen sicher (Cross-Browser).
+ */
+function exitFullscreenSafe() {
+    if (document.exitFullscreen) { document.exitFullscreen(); return; }
+    if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); return; }
+    if (document.msExitFullscreen) { document.msExitFullscreen(); }
+}
+
+/**
+ * Öffentliche API: Fullscreen betreten.
+ * @param {HTMLElement} element
+ */
+function enterFullscreen(element) {
+    requestFullscreenSafe(element);
+}
+
+/**
+ * Öffentliche API: Fullscreen verlassen.
+ */
+function exitFullscreen() {
+    exitFullscreenSafe();
+}
+
+/**
+ * Reagiert auf Fullscreen-Zustandswechsel (UI sync).
+ */
+function onFullscreenChange() {
+    let fsBtn = document.getElementById('fullscreen-button');
+    let exBtn = document.getElementById('exit-fullscreen-button');
+    let active = isFullscreenActive();
+    if (fsBtn) { fsBtn.style.display = active ? 'none' : 'block'; }
+    if (exBtn) { exBtn.style.display = active ? 'block' : 'none'; }
+}
+
+/**
+ * Registriert Fullscreen-Eventlistener.
+ */
+function initFullscreenObservers() {
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('MSFullscreenChange', onFullscreenChange);
+    onFullscreenChange();
 }

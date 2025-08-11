@@ -1,11 +1,18 @@
 // js/game.js
-/* global World, Keyboard, audioManager, setMuteButtonState, createLevel1 */
+/* global World, Keyboard, audioManager, setMuteButtonState, createLevel1, updateMobileControlsVisibility */
 
 let canvas;
 let world = null;
 let keyboard = new Keyboard();
 let currentLevel = null;
 
+/* WICHTIG: window.world initialisieren, damit andere Dateien (mobile-controls.js)
+   den Zustand sicher über window.world prüfen können. */
+window.world = null;
+
+/**
+ * Bootstrapped beim Laden der Seite.
+ */
 function boot() {
     canvas = document.getElementById('canvas');
     initUI();
@@ -14,27 +21,42 @@ function boot() {
     checkOrientation();
 }
 
+/**
+ * Startet das Spiel (einmalig).
+ */
 function startGame() {
-    if (world !== null) return;
-
-    currentLevel = createLevel1();                 // Level erst jetzt erstellen
+    if (world !== null) { return; }
+    currentLevel = createLevel1();
     world = new World(canvas, keyboard, currentLevel);
+    window.world = world;                 // <-- an window anhängen
     audioManager.playLoop('bgm');
     hideStartScreen();
+    updateMobileControlsVisibility();
 }
 
+/**
+ * Startet das Spiel neu.
+ */
 function restartGame() {
-    if (world) world.gameOver = true;
+    if (world) { world.gameOver = true; }
     document.getElementById('endscreen').classList.add('hidden');
     world = null;
+    window.world = null;                  // <-- sauber zurücksetzen
     currentLevel = null;
     startGame();
+    updateMobileControlsVisibility();
 }
 
+/**
+ * Zurück zur Startseite.
+ */
 function goHome() {
     window.location.reload();
 }
 
+/**
+ * Initialisiert Keyboard-Events.
+ */
 function initKeyboardListeners() {
     window.addEventListener('keydown', function (event) {
         switch (event.code) {
@@ -62,26 +84,42 @@ function initKeyboardListeners() {
     });
 }
 
+/**
+ * Pausiert/entpausiert das Spiel und synchronisiert UI.
+ */
 function togglePause() {
-    if (!world) return;
+    if (!world) { return; }
     world.togglePause();
     audioManager.pauseAll(world.paused);
+    updateMobileControlsVisibility();     // <-- Controls bei Pause ausblenden
 }
 
+/**
+ * Markiert die letzte Eingabezeit (für Idle/Sleep).
+ */
 function updateLastInputTime() {
-    if (!world || !world.character || !world.character[0]) return;
+    if (!world || !world.character || !world.character[0]) { return; }
     world.character[0].markActive();
 }
 
+/**
+ * Debug-Modus an/aus.
+ */
 function toggleDebug() {
     window.DEBUG_MODE = !window.DEBUG_MODE;
 }
 
+/**
+ * Stellt den Mute-Button-Status aus Storage her.
+ */
 function initMuteButtonFromStorage() {
     setMuteButtonState(audioManager.isMuted());
 }
 
+/**
+ * Versteckt den Startscreen.
+ */
 function hideStartScreen() {
-    var ss = document.getElementById('start-screen');
+    let ss = document.getElementById('start-screen');
     ss.classList.add('hidden');
 }
