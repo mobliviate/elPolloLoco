@@ -1,5 +1,3 @@
-// classes/throwable-object.class.js
-
 /**
  * Throwable salsa bottle with rotation and splash animation.
  * Extends {@link MovableObject}.

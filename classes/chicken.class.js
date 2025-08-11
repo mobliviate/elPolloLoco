@@ -1,5 +1,3 @@
-// classes/chicken.class.js
-
 /**
  * Regular chicken enemy walking left until defeated.
  * Extends {@link MovableObject}.

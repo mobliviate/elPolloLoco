@@ -1,5 +1,3 @@
-// js/audio-manager.js
-
 /**
  * Manages music and sound effects for the game with a global mute state
  * persisted in LocalStorage.

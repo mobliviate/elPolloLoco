@@ -1,5 +1,3 @@
-// classes/world.class.js
-
 /**
  * The central game coordinator: renders, updates, handles collisions,
  * and orchestrates status bars and input.

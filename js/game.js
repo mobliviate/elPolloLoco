@@ -1,5 +1,3 @@
-/* global World, Keyboard, audioManager, setMuteButtonState, createLevel1, updateMobileControlsVisibility */
-
 let canvas;
 let world = null;
 let keyboard = new Keyboard();

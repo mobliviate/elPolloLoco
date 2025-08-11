@@ -1,5 +1,3 @@
-// classes/drawable-object.class.js
-
 /**
  * Base class for anything drawable on the canvas.
  * Holds common image loading and drawing utilities.

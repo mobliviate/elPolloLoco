@@ -1,5 +1,3 @@
-// classes/endboss.class.js
-
 /**
  * The boss enemy with multiple states and limited health.
  * Extends {@link MovableObject}.

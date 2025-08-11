@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El Pollo Loco</title>
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Zabras&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Classes -->
     <script src="classes/drawable-object.class.js"></script>
     <script src="classes/movable-object.class.js"></script>
     <script src="classes/status-bar.class.js"></script>
@@ -32,7 +27,6 @@
     <script src="classes/coin.class.js"></script>
     <script src="levels/level1.js"></script>
 
-    <!-- Game / Helpers -->
     <script src="js/audio-manager.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/mobile-controls.js"></script>
@@ -41,7 +35,6 @@
 </head>
 <body onload="boot()">
 
-    <!-- Start Screen -->
     <div id="start-screen" class="overlay fullscreen">
         <div class="start-content">
             <img src="img/9_intro_outro_screens/start/startscreen_1.png" alt="Start" class="start-image">
@@ -53,7 +46,6 @@
         </div>
     </div>
 
-    <!-- Game Container (Fullscreen-Ziel) -->
     <div id="game-container">
         <div id="game-header">
             <h1>El Pollo Loco</h1>
@@ -64,14 +56,12 @@
                 onclick="enterFullscreen(document.getElementById('game-container'))">
         </div>
 
-        <!-- Exit-Fullscreen-Icon (sichtbar nur im Fullscreen, per CSS) -->
         <img
             src="img/fullscreen.png"
             alt="Exit Fullscreen"
             id="exit-fullscreen-button"
             onclick="exitFullscreen()">
 
-        <!-- Orientation Overlay (MOVED INSIDE game-container for fullscreen z-order) -->
         <div id="orientation-overlay" class="overlay fullscreen hidden">
             <div class="orientation-box">
                 <p>Please rotate your device to landscape.</p>
@@ -80,7 +70,6 @@
 
         <canvas id="canvas" width="720" height="480"></canvas>
 
-        <!-- Mobile Controls -->
         <div id="mobile-controls" class="hidden">
             <div class="mc-left">
                 <button id="mc-jump" class="mc-btn mc-jump">⤴</button>
@@ -94,7 +83,6 @@
             </div>
         </div>
 
-        <!-- Key Mapping (Desktop only) -->
         <div id="keymap" class="keymap">
             <div class="km-item">← Left</div>
             <div class="km-item">→ Right</div>
@@ -102,7 +90,6 @@
             <div class="km-item">D Throw</div>
         </div>
 
-        <!-- Game Over / Win Screens -->
         <div id="endscreen" class="overlay fullscreen hidden">
             <div id="endscreen-inner">
                 <div id="endscreen-content"></div>
@@ -114,15 +101,13 @@
         </div>
     </div>
 
-    <!-- Impressum Overlay -->
     <div id="impressum" class="overlay fullscreen hidden">
         <div class="impressum-box">
             <h2>Imprint</h2>
-            <p><strong>Provider:</strong> [Name Placeholder]</p>
-            <p><strong>Address:</strong> [Street Placeholder], [City Placeholder]</p>
-            <p><strong>Contact:</strong> [Email Placeholder] | [Phone Placeholder]</p>
-            <p><strong>Liability Notice:</strong> [Liability disclaimer placeholder...]</p>
-            <p><strong>Copyright:</strong> [Copyright notice placeholder...]</p>
+            <p><strong>Provider:</strong> Marc Odermatt</p>
+            <p><strong>Address:</strong> Schlüsselhostatt 3, 6376 Emmetten</p>
+            <p><strong>Contact:</strong> info@marcodermatt.ch</p>
+            <p><strong>Copyright:</strong> Marc Odermatt</p>
             <button id="btn-impressum-close" class="btn primary">Close</button>
         </div>
     </div>

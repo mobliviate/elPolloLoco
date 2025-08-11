@@ -1,5 +1,3 @@
-// levels/level1.js
-
 /**
  * Creates and returns the first level configuration with enemies,
  * clouds, parallax backgrounds, coins and bottles.
