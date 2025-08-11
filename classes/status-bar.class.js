@@ -75,7 +75,6 @@ class StatusBar extends DrawableObject {
         }
 
         let i = Math.floor(percentage_health / 20);
-        console.log(i);
         let path = this.IMAGES_HEALTH[i];
         this.img = this.imageCache[path];
     }
