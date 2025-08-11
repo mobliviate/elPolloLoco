@@ -62,7 +62,7 @@ class MovableObject extends DrawableObject {
 
     /**
      * Axis-aligned bounding box collision detection with offsets.
-     * @param {MovableObject|DrawableObject} other - The other object.
+     * @param {MovableObject|DrawableObject} other
      * @param {{top:number,bottom:number,left:number,right:number}} [thisOffset] - Optional custom offset for this object.
      * @param {{top:number,bottom:number,left:number,right:number}} [otherOffset] - Optional custom offset for other object.
      * @returns {boolean} True if rectangles intersect.

@@ -26,10 +26,6 @@ function bindClick(id, handler) {
     if (el) { el.addEventListener('click', handler); }
 }
 
-/* -----------------------------------------------------------
-   Impressum & Endscreen & Mute
------------------------------------------------------------ */
-
 /**
  * Shows or hides the imprint overlay and syncs mobile controls.
  * @param {boolean} show - Whether to show the imprint.
@@ -73,10 +69,6 @@ function showEndscreen(type) {
     toggleMobileControls(false);
 }
 
-/* -----------------------------------------------------------
-   Mobile Controls Sichtbarkeit (wird auch extern genutzt)
------------------------------------------------------------ */
-
 /**
  * Shows or hides the mobile controls bar element.
  * @param {boolean} show - True to show, false to hide.
@@ -88,10 +80,6 @@ function toggleMobileControls(show) {
     if (show) { mc.classList.remove('hidden'); }
     else { mc.classList.add('hidden'); }
 }
-
-/* -----------------------------------------------------------
-   Fullscreen – stabil & Cross-Browser
------------------------------------------------------------ */
 
 /**
  * Returns whether there is currently an element in fullscreen.

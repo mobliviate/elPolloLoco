@@ -28,7 +28,7 @@ function startGame() {
     if (world !== null) { return; }
     currentLevel = createLevel1();
     world = new World(canvas, keyboard, currentLevel);
-    window.world = world;                 // <-- attach to window
+    window.world = world;
     audioManager.playLoop('bgm');
     hideStartScreen();
     updateMobileControlsVisibility();
@@ -42,7 +42,7 @@ function restartGame() {
     if (world) { world.gameOver = true; }
     document.getElementById('endscreen').classList.add('hidden');
     world = null;
-    window.world = null;                  // <-- clean reset
+    window.world = null;
     currentLevel = null;
     startGame();
     updateMobileControlsVisibility();
@@ -96,7 +96,7 @@ function togglePause() {
     if (!world) { return; }
     world.togglePause();
     audioManager.pauseAll(world.paused);
-    updateMobileControlsVisibility();     // <-- hide controls while paused
+    updateMobileControlsVisibility();
 }
 
 /**

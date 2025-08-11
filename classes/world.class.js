@@ -176,7 +176,7 @@ class World {
         const charFeet = character.y + character.height - charOffset.bottom;
         const enemyHead = enemy.y + enemyOffset.top;
 
-        const tolerance = 60; // small buffer to ensure top-hit is recognized
+        const tolerance = 60;
         const landedOnChicken = fallingDown && charFeet <= (enemyHead + tolerance);
 
         if (landedOnChicken) {

@@ -86,7 +86,7 @@ class Character extends MovableObject {
      * @constructor
      */
     constructor() {
-        super().loadImg('img/2_character_pepe/1_idle/idle/I-1.png'); // Start: IDLE
+        super().loadImg('img/2_character_pepe/1_idle/idle/I-1.png');
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);
         this.loadImages(this.IMAGES_HURT);
@@ -159,7 +159,6 @@ class Character extends MovableObject {
     animate() {
         let self = this;
 
-        // Movement loop
         setInterval(function () {
             if (!self.world || self.world.paused) { return; }
             if (self.dead()) { return; }
@@ -168,7 +167,6 @@ class Character extends MovableObject {
             self.world.camera_x = -self.x + 100;
         }, 10);
 
-        // Animation state loop
         setInterval(function () {
             if (!self.world || self.world.paused) { return; }
 
