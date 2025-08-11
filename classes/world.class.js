@@ -66,12 +66,11 @@ class World {
     run() {
         let self = this;
         setInterval(function () {
-            if (self.paused || self.gameOver) {
-                return;
-            }
+            if (self.paused || self.gameOver) { return; }
             self.checkCollisions();
             self.checkThrowObjects();
             self.checkItemCollection();
+            self.checkNoWinPossible();
         }, 100);
     }
 
@@ -103,45 +102,101 @@ class World {
     }
 
     /**
-     * Performs collision detection for character, bottles, and enemies.
+     * High-level collision dispatcher; keeps functions small and focused.
      * @returns {void}
      */
     checkCollisions() {
         const character = this.character[0];
-        const endboss = this.level.enemies.find(function (enemy) { return enemy instanceof Endboss; });
+        const endboss = this.getEndboss();
+        this.checkChickensCollisions(character);
+        this.handleBottlesVsEndboss(endboss);
+        this.handleBottlesVsChickens();
+        this.handleCharacterVsEndboss(character, endboss);
+    }
 
+    /**
+     * Gets the endboss instance if present.
+     * @returns {Endboss|null} The endboss or null.
+     */
+    getEndboss() {
+        let boss = null;
+        this.level.enemies.some(function (e) {
+            if (e instanceof Endboss) { boss = e; return true; }
+            return false;
+        });
+        return boss;
+    }
+
+    /**
+     * Checks character collisions with all alive chickens.
+     * @param {Character} character - Player character.
+     * @returns {void}
+     */
+    checkChickensCollisions(character) {
+        let self = this;
         this.level.enemies.forEach(function (enemy) {
             if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
-                this.checkChickenCollision(character, enemy);
+                self.checkChickenCollision(character, enemy);
             }
-        }.bind(this));
+        });
+    }
 
+    /**
+     * Handles bottle collisions with the endboss.
+     * @param {Endboss|null} endboss - The boss enemy.
+     * @returns {void}
+     */
+    handleBottlesVsEndboss(endboss) {
+        if (!endboss || endboss.health <= 0) { return; }
+        let self = this;
         this.throwableObjects.forEach(function (bottle) {
-            if (endboss && endboss.health > 0 && bottle.isColliding(endboss)) {
-                const hitSuccessful = endboss.hit();
-                if (hitSuccessful) {
-                    audioManager.play('boss_hurt');
-                    this.removeBottle(bottle);
-                }
-                return;
+            if (bottle.isColliding(endboss)) {
+                if (endboss.hit()) { audioManager.play('boss_hurt'); self.removeBottle(bottle); }
             }
-            this.level.enemies.forEach(function (enemy) {
-                if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead && bottle.isColliding(enemy)) {
-                    enemy.dead();
-                    audioManager.play('enemy_hit');
-                    this.removeBottle(bottle);
-                }
-            }.bind(this));
-        }.bind(this));
+        });
+    }
 
-        if (endboss && endboss.health > 0 && character.isColliding(endboss)) {
-            character.hit();
-            audioManager.play('hurt');
-            this.statusBarHealth.updateHealthBar(character.energy);
-            if (character.energy <= 0) {
-                character.dead();
-            }
-        }
+    /**
+     * Handles bottle collisions with chickens.
+     * @returns {void}
+     */
+    handleBottlesVsChickens() {
+        let self = this;
+        this.throwableObjects.forEach(function (bottle) {
+            self.level.enemies.forEach(function (enemy) {
+                if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
+                    self.hitChickenIfColliding(bottle, enemy);
+                }
+            });
+        });
+    }
+
+    /**
+     * Hits a chicken if a bottle overlaps it.
+     * @param {ThrowableObject} bottle - Thrown bottle.
+     * @param {MovableObject} enemy - Chicken or small chicken.
+     * @returns {void}
+     */
+    hitChickenIfColliding(bottle, enemy) {
+        if (!bottle.isColliding(enemy)) { return; }
+        enemy.dead();
+        audioManager.play('enemy_hit');
+        this.removeBottle(bottle);
+    }
+
+    /**
+     * Handles direct character vs endboss collision.
+     * @param {Character} character - Player character.
+     * @param {Endboss|null} endboss - The boss enemy.
+     * @returns {void}
+     */
+    handleCharacterVsEndboss(character, endboss) {
+        if (!endboss || endboss.health <= 0) { return; }
+        if (!character.isColliding(endboss)) { return; }
+        character.hit();
+        audioManager.play('hurt');
+        this.statusBarHealth.updateHealthBar(character.energy);
+        if (character.energy <= 0) { character.dead(); }
     }
 
     /**
@@ -158,39 +213,58 @@ class World {
     }
 
     /**
-     * Resolves character vs. chicken collision:
-     * landing from above kills chicken, else character is hurt.
+     * Resolves character vs. chicken collision with stomp logic.
      * @param {Character} character - Player character.
      * @param {MovableObject} enemy - Chicken or small chicken.
      * @returns {void}
      */
     checkChickenCollision(character, enemy) {
-        if (!character.isColliding(enemy)) {
-            return;
-        }
-
-        const fallingDown = character.speedY < 0;
-        const charOffset = MovableObject.getHitboxOffset(character.constructor.name);
-        const enemyOffset = MovableObject.getHitboxOffset(enemy.constructor.name);
-
-        const charFeet = character.y + character.height - charOffset.bottom;
-        const enemyHead = enemy.y + enemyOffset.top;
-
-        const tolerance = 60;
-        const landedOnChicken = fallingDown && charFeet <= (enemyHead + tolerance);
-
-        if (landedOnChicken) {
-            enemy.dead();
-            character.speedY = 12;
-            audioManager.play('enemy_hit');
+        if (!character.isColliding(enemy)) { return; }
+        if (this.isStompFromAbove(character, enemy)) {
+            this.handleChickenStomp(character, enemy);
         } else {
-            character.hit();
-            audioManager.play('hurt');
-            this.statusBarHealth.updateHealthBar(character.energy);
-            if (character.energy <= 0) {
-                character.dead();
-            }
+            this.handleChickenDamageToCharacter(character);
         }
+    }
+
+    /**
+     * Returns true when character falls onto a chicken's head.
+     * @param {Character} character - Player character.
+     * @param {MovableObject} enemy - Chicken or small chicken.
+     * @returns {boolean} True if stomp hit.
+     */
+    isStompFromAbove(character, enemy) {
+        const fallingDown = character.speedY < 0;
+        const co = MovableObject.getHitboxOffset(character.constructor.name);
+        const eo = MovableObject.getHitboxOffset(enemy.constructor.name);
+        const charFeet = character.y + character.height - co.bottom;
+        const enemyHead = enemy.y + eo.top;
+        const tolerance = 60;
+        return fallingDown && charFeet <= (enemyHead + tolerance);
+    }
+
+    /**
+     * Kills the chicken and bounces the character slightly up.
+     * @param {Character} character - Player character.
+     * @param {MovableObject} enemy - Chicken hit.
+     * @returns {void}
+     */
+    handleChickenStomp(character, enemy) {
+        enemy.dead();
+        character.speedY = 12;
+        audioManager.play('enemy_hit');
+    }
+
+    /**
+     * Applies damage from chicken to the character.
+     * @param {Character} character - Player character.
+     * @returns {void}
+     */
+    handleChickenDamageToCharacter(character) {
+        character.hit();
+        audioManager.play('hurt');
+        this.statusBarHealth.updateHealthBar(character.energy);
+        if (character.energy <= 0) { character.dead(); }
     }
 
     /**
@@ -217,13 +291,41 @@ class World {
     }
 
     /**
+     * Auto-lose when no bottles remain anywhere and boss still alive.
+     * Runs in the main loop.
+     * @returns {void}
+     */
+    checkNoWinPossible() {
+        let boss = this.getEndboss();
+        if (!boss || boss.health <= 0) { return; }
+        let noStock = this.statusBarBottle.percentage_bottle === 0;
+        let noneOnMap = this.level.bottles.length === 0;
+        let activeThrow = this.throwableObjects.some(function (b) { return !b.isSplashing; });
+        if (noStock && noneOnMap && !activeThrow) { this.showGameOver(); }
+    }
+
+    /**
+     * Computes the character's ground top (y for character's head when standing).
+     * Uses enemies' baselines; falls back to 460 if none exist.
+     * @param {Character} character - Player character.
+     * @returns {number} Top y for the character on ground.
+     */
+    getGroundTopYForCharacter(character) {
+        let baselines = [];
+        this.level.enemies.forEach(function (e) {
+            if (e instanceof Chicken || e instanceof ChickenSmall) { baselines.push(e.y + e.height); }
+        });
+        let base = baselines.length ? Math.max.apply(null, baselines) : 460;
+        return base - character.height;
+    }
+
+    /**
      * The drawing loop using requestAnimationFrame to paint the scene.
+     * Ensures z-order: enemies < character < bottles.
      * @returns {void}
      */
     draw() {
-        if (this.gameOver) {
-            return;
-        }
+        if (this.gameOver) { return; }
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
@@ -241,16 +343,15 @@ class World {
 
         this.ctx.translate(this.camera_x, 0);
 
-        this.addObjectsToMap(this.character);
+        // z-order: enemies (back), then character, then bottles (front)
         this.addObjectsToMap(this.level.enemies);
+        this.addObjectsToMap(this.character);
         this.addObjectsToMap(this.throwableObjects);
 
         this.ctx.translate(-this.camera_x, 0);
 
         let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
-        });
+        requestAnimationFrame(function () { self.draw(); });
     }
 
     /**

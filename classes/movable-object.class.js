@@ -17,7 +17,7 @@ class MovableObject extends DrawableObject {
      * @type {Record<string, {top:number,bottom:number,left:number,right:number}>}
      */
     static hitboxOffsets = {
-        Character: { top: 190, bottom: 30, left: 55, right: 55 },
+        Character: { top: 152, bottom: 24, left: 44, right: 44 },
         Endboss: { top: 70, bottom: 20, left: 20, right: 20 },
         Coin: { top: 40, bottom: 40, left: 40, right: 40 },
         Bottle: { top: 10, bottom: 10, left: 40, right: 40 },
@@ -39,13 +39,12 @@ class MovableObject extends DrawableObject {
      * @returns {void}
      */
     applyGravity() {
-        setInterval(() => {
+        setInterval(function () {
             if (this.isAboveGround() || this.speedY > 0) {
                 this.speedY -= this.acceleration;
                 this.y -= this.speedY;
             }
-
-        }, 1000 / 50);
+        }.bind(this), 1000 / 50);
     }
 
     /**
@@ -94,7 +93,6 @@ class MovableObject extends DrawableObject {
      */
     moveRight() {
         this.x += this.speed;
-
     }
 
     /**
@@ -103,7 +101,6 @@ class MovableObject extends DrawableObject {
      */
     moveLeft() {
         this.x -= this.speed;
-
     }
 
     /**

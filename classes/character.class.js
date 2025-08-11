@@ -6,8 +6,8 @@
  */
 class Character extends MovableObject {
 
-    height = 480;
-    width = 200;
+    height = 384;
+    width = 160;
     y = 0;
     x = 0;
     speed = 10;
@@ -148,8 +148,37 @@ class Character extends MovableObject {
      * @returns {boolean} True if overlapping with adjusted box.
      */
     isColliding(other, offset) {
-        let defaultOffset = { top: 190, bottom: 30, left: 55, right: 55 };
+        let defaultOffset = { top: 152, bottom: 24, left: 44, right: 44 };
         return super.isColliding(other, offset || defaultOffset);
+    }
+
+    /**
+     * Character-specific gravity: aligns ground with enemies' baseline.
+     * Clamps y to the computed ground and resets vertical speed on landing.
+     * @returns {void}
+     */
+    applyGravity() {
+        let self = this;
+        setInterval(function () {
+            let groundTop = self.world ? self.world.getGroundTopYForCharacter(self) : 0;
+            if (self.y < groundTop || self.speedY > 0) {
+                self.speedY -= self.acceleration;
+                self.y -= self.speedY;
+                if (self.y > groundTop) {
+                    self.y = groundTop;
+                    self.speedY = 0;
+                }
+            }
+        }, 1000 / 50);
+    }
+
+    /**
+     * Uses dynamic ground based on enemies to decide airborne state.
+     * @returns {boolean} True if above the computed ground.
+     */
+    isAboveGround() {
+        if (!this.world) { return this.y < 0; }
+        return this.y < this.world.getGroundTopYForCharacter(this);
     }
 
     /**
