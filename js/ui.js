@@ -36,6 +36,7 @@ function showImpressum(show) {
     if (show) {
         imp.classList.remove('hidden');
         toggleMobileControls(false);
+        toggleKeyMap(true);
     } else {
         imp.classList.add('hidden');
         updateMobileControlsVisibility();
@@ -67,6 +68,7 @@ function showEndscreen(type) {
     audioManager.pauseAll(true);
     end.classList.remove('hidden');
     toggleMobileControls(false);
+    toggleKeyMap(true);
 }
 
 /**
@@ -79,6 +81,13 @@ function toggleMobileControls(show) {
     if (!mc) { return; }
     if (show) { mc.classList.remove('hidden'); }
     else { mc.classList.add('hidden'); }
+}
+
+function toggleKeyMap(show) {
+    let keyMap = document.getElementById('keymap');
+    if (!keyMap) { return; }
+    if (show) { keyMap.classList.remove('hidden'); }
+    else { keyMap.classList.add('hidden'); }
 }
 
 /**

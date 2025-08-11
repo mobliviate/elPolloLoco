@@ -90,8 +90,8 @@ canvas {
     justify-content: center;
     align-items: center;
 }
-.fullscreen { background: rgba(0,0,0,0.85); }
-.hidden { display: none; }
+.fullscreen { background: rgba(0,0,0,1); }
+.hidden { display: none !important; }
 
 .start-content { display: flex; flex-direction: column; align-items: center; }
 .start-image { max-width: 80%; height: auto; }
@@ -129,10 +129,7 @@ canvas {
     gap: clamp(8px, 2vw, 20px);
     flex-wrap: wrap;
 }
-@media (max-height: 420px) {
-    #endscreen-content { max-height: 55vh; }
-    .btn { padding: 6px 12px; }
-}
+
 
 button, .btn, .mc-btn {
     font-family: 'Zabras', cursive !important;
@@ -199,8 +196,6 @@ button, .btn, .mc-btn {
     font-size: clamp(0.9rem, 2.2vw, 1.2rem);
     box-shadow: 0 6px 14px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
 }
-@media (max-width: 768px) { #keymap { display: none; } }
-
 
 #mobile-controls {
     width: 100%;
@@ -209,6 +204,10 @@ button, .btn, .mc-btn {
     justify-content: space-between;
     align-items: flex-end;
     z-index: 1100;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
 }
 
 #mobile-controls.hidden {
@@ -248,15 +247,14 @@ button, .btn, .mc-btn {
 .mc-btn:active { transform: scale(0.96); }
 .mc-btn:focus-visible { outline: 3px solid rgba(255,255,255,0.7); outline-offset: 2px; }
 
+@media (max-height: 420px) {
+    #endscreen-content { max-height: 55vh; }
+    .btn { padding: 6px 12px; }
+}
+
+
 
 @media (max-width: 900px) {
-    #mobile-controls {
-        position: fixed;
-        left: 0;
-        right: 0;
-        bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
-
-    }
 
     #game-container:fullscreen #game-header { display: none; }
     #game-container:-webkit-full-screen #game-header { display: none; }

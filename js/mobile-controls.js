@@ -42,6 +42,7 @@ function isOverlayVisible(id) {
 function updateMobileControlsVisibility() {
     let show = shouldShowMobileControls() && isGameActive();
     toggleMobileControls(show);
+    toggleKeyMap(!show);
 }
 
 /**
