@@ -1,4 +1,10 @@
 // classes/drawable-object.class.js
+
+/**
+ * Base class for anything drawable on the canvas.
+ * Holds common image loading and drawing utilities.
+ * @class
+ */
 class DrawableObject {
 
     img;
@@ -9,11 +15,16 @@ class DrawableObject {
     x = 0;
     y = 0;
 
+    /**
+     * Creates a new drawable object.
+     * @constructor
+     */
     constructor() {}
 
     /**
-     * Loads single image.
-     * @param {string} path 
+     * Loads a single image into this object's main image.
+     * @param {string} path - Image URL/path.
+     * @returns {void}
      */
     loadImg(path) {
         this.img = new Image();
@@ -21,8 +32,9 @@ class DrawableObject {
     }
 
     /**
-     * Loads multiple images into cache.
-     * @param {string[]} arr 
+     * Preloads multiple images into the cache for animation.
+     * @param {string[]} arr - Array of image paths.
+     * @returns {void}
      */
     loadImages(arr) {
         arr.forEach(function (path) {
@@ -33,16 +45,18 @@ class DrawableObject {
     }
 
     /**
-     * Draws object to canvas.
-     * @param {CanvasRenderingContext2D} ctx 
+     * Draws this drawable to the canvas.
+     * @param {CanvasRenderingContext2D} ctx - Rendering context.
+     * @returns {void}
      */
     draw(ctx) {
         ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 
     /**
-     * Draws debug frame if DEBUG_MODE is true.
-     * @param {CanvasRenderingContext2D} ctx 
+     * Draws a debug collision frame if DEBUG_MODE is enabled.
+     * @param {CanvasRenderingContext2D} ctx - Rendering context.
+     * @returns {void}
      */
     drawFrame(ctx) {
         if (!window.DEBUG_MODE) return;

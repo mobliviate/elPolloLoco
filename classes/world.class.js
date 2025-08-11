@@ -1,4 +1,10 @@
 // classes/world.class.js
+
+/**
+ * The central game coordinator: renders, updates, handles collisions,
+ * and orchestrates status bars and input.
+ * @class
+ */
 class World {
 
     character = [new Character()];
@@ -15,9 +21,10 @@ class World {
     paused = false;
 
     /**
-     * @param {HTMLCanvasElement} canvas 
-     * @param {Keyboard} keyboard 
-     * @param {Level} level
+     * Creates a World instance and starts main loops.
+     * @param {HTMLCanvasElement} canvas - Canvas element to render to.
+     * @param {Keyboard} keyboard - Keyboard state reference.
+     * @param {Level} level - Level definition with objects.
      */
     constructor(canvas, keyboard, level) {
         this.keyboard = keyboard;
@@ -35,14 +42,16 @@ class World {
     }
 
     /**
-     * Connect character with world.
+     * Connects the main character with this world instance.
+     * @returns {void}
      */
     setWorld() {
         this.character[0].world = this;
     }
 
     /**
-     * Starts background/cloud animations once game starts.
+     * Starts cloud/background animations after game begins.
+     * @returns {void}
      */
     startEnvironmentAnimations() {
         this.level.clouds.forEach(function (cloud) {
@@ -53,7 +62,8 @@ class World {
     }
 
     /**
-     * Main game loop logic executed in interval.
+     * Periodic game logic loop handling collisions, throws, and pickups.
+     * @returns {void}
      */
     run() {
         let self = this;
@@ -68,14 +78,16 @@ class World {
     }
 
     /**
-     * Toggle pause.
+     * Toggles the pause state of the world.
+     * @returns {void}
      */
     togglePause() {
         this.paused = !this.paused;
     }
 
     /**
-     * Handles bottle throwing.
+     * Handles bottle throwing when input is active and stock available.
+     * @returns {void}
      */
     checkThrowObjects() {
         const bottleBar = this.statusBarBottle;
@@ -93,7 +105,8 @@ class World {
     }
 
     /**
-     * Collision checks.
+     * Performs collision detection for character, bottles, and enemies.
+     * @returns {void}
      */
     checkCollisions() {
         const character = this.character[0];
@@ -134,8 +147,9 @@ class World {
     }
 
     /**
-     * Removes bottle from array.
-     * @param {ThrowableObject} bottle 
+     * Removes a bottle from the active projectiles and plays splash.
+     * @param {ThrowableObject} bottle - Bottle to remove.
+     * @returns {void}
      */
     removeBottle(bottle) {
         const idx = this.throwableObjects.indexOf(bottle);
@@ -146,10 +160,11 @@ class World {
     }
 
     /**
-     * Only kill chickens when the character lands clearly from above.
-     * Adjusted to also work for big chickens.
-     * @param {Character} character 
-     * @param {MovableObject} enemy 
+     * Resolves character vs. chicken collision:
+     * landing from above kills chicken, else character is hurt.
+     * @param {Character} character - Player character.
+     * @param {MovableObject} enemy - Chicken or small chicken.
+     * @returns {void}
      */
     checkChickenCollision(character, enemy) {
         if (!character.isColliding(enemy)) {
@@ -181,7 +196,8 @@ class World {
     }
 
     /**
-     * Checks collection of coins and bottles.
+     * Checks and applies pickup logic for coins and bottles.
+     * @returns {void}
      */
     checkItemCollection() {
         const character = this.character[0];
@@ -203,7 +219,8 @@ class World {
     }
 
     /**
-     * Drawing loop using requestAnimationFrame.
+     * The drawing loop using requestAnimationFrame to paint the scene.
+     * @returns {void}
      */
     draw() {
         if (this.gameOver) {
@@ -239,8 +256,9 @@ class World {
     }
 
     /**
-     * Helper to add multiple objects.
-     * @param {DrawableObject[]} objects 
+     * Adds multiple drawables to the map (canvas).
+     * @param {DrawableObject[]} objects - List of objects to draw.
+     * @returns {void}
      */
     addObjectsToMap(objects) {
         objects.forEach(function (object) {
@@ -249,8 +267,9 @@ class World {
     }
 
     /**
-     * Adds single object considering flip.
-     * @param {MovableObject} movableObject 
+     * Adds a single object to the map while handling mirroring.
+     * @param {MovableObject|DrawableObject} movableObject - Object to draw.
+     * @returns {void}
      */
     addToMap(movableObject) {
         if (movableObject.otherDirection) {
@@ -266,8 +285,9 @@ class World {
     }
 
     /**
-     * Flips the image horizontally.
-     * @param {MovableObject} movableObject 
+     * Flips the canvas horizontally for mirrored drawing.
+     * @param {MovableObject} movableObject - Object being flipped.
+     * @returns {void}
      */
     flipImage(movableObject) {
         this.ctx.save();
@@ -277,8 +297,9 @@ class World {
     }
 
     /**
-     * Restores flipped image.
-     * @param {MovableObject} movableObject 
+     * Restores canvas transform after a flip.
+     * @param {MovableObject} movableObject - Object being unflipped.
+     * @returns {void}
      */
     flipImageBack(movableObject) {
         movableObject.x = -movableObject.x;
@@ -286,7 +307,8 @@ class World {
     }
 
     /**
-     * Shows game over.
+     * Triggers the game over UI and stops the loop.
+     * @returns {void}
      */
     showGameOver() {
         this.gameOver = true;
@@ -294,7 +316,8 @@ class World {
     }
 
     /**
-     * Shows win screen.
+     * Triggers the win UI and stops the loop.
+     * @returns {void}
      */
     showWin() {
         this.gameOver = true;

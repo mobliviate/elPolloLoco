@@ -1,4 +1,8 @@
-// classes/chicken-small.class.js
+/**
+ * A smaller, faster chicken enemy.
+ * Extends {@link MovableObject}.
+ * @class
+ */
 class ChickenSmall extends MovableObject {
     height = 60;
     width = 60;
@@ -16,6 +20,10 @@ class ChickenSmall extends MovableObject {
     animationInterval;
     moveInterval;
 
+    /**
+     * Creates a small chicken with randomized position and speed.
+     * @constructor
+     */
     constructor() {
         super().loadImg(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
@@ -26,6 +34,10 @@ class ChickenSmall extends MovableObject {
         this.animate();
     }
 
+    /**
+     * Starts movement and walking animation loops.
+     * @returns {void}
+     */
     animate() {
         let self = this;
         this.moveInterval = setInterval(function () {
@@ -41,6 +53,10 @@ class ChickenSmall extends MovableObject {
         }, 120);
     }
 
+    /**
+     * Marks the chicken as dead and stops timers.
+     * @returns {void}
+     */
     dead() {
         this.isDead = true;
         this.loadImg(this.IMAGE_DEAD);

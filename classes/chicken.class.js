@@ -1,4 +1,10 @@
 // classes/chicken.class.js
+
+/**
+ * Regular chicken enemy walking left until defeated.
+ * Extends {@link MovableObject}.
+ * @class
+ */
 class Chicken extends MovableObject {
     height = 100;
     width = 100;
@@ -16,6 +22,10 @@ class Chicken extends MovableObject {
     animationInterval;
     moveInterval;
 
+    /**
+     * Creates a chicken with randomized position and speed.
+     * @constructor
+     */
     constructor() {
         super().loadImg(this.IMAGES_WALKING[0]);
         this.loadImages(this.IMAGES_WALKING);
@@ -27,6 +37,10 @@ class Chicken extends MovableObject {
         this.animate();
     }
 
+    /**
+     * Starts movement and walking animation loops.
+     * @returns {void}
+     */
     animate() {
         let self = this;
         this.moveInterval = setInterval(function () {
@@ -42,6 +56,10 @@ class Chicken extends MovableObject {
         }, 100);
     }
 
+    /**
+     * Marks the chicken as dead and stops its timers.
+     * @returns {void}
+     */
     dead() {
         this.isDead = true;
         this.loadImg(this.IMAGE_DEAD);

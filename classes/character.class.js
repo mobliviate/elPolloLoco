@@ -1,5 +1,9 @@
-// classes/character.class.js
-// classes/character.class.js
+/**
+ * The controllable player character with movement, jumping,
+ * idle/sleep, hurt and death states.
+ * Extends {@link MovableObject}.
+ * @class
+ */
 class Character extends MovableObject {
 
     height = 480;
@@ -77,6 +81,10 @@ class Character extends MovableObject {
     world;
     otherDirection = false;
 
+    /**
+     * Constructs the player character and starts animation loops.
+     * @constructor
+     */
     constructor() {
         super().loadImg('img/2_character_pepe/1_idle/idle/I-1.png'); // Start: IDLE
         this.loadImages(this.IMAGES_WALKING);
@@ -91,15 +99,16 @@ class Character extends MovableObject {
     }
 
     /**
-     * Markiert Aktivität (für Idle/Sleep Timer).
+     * Marks the character as active (resets idle/sleep timer).
+     * @returns {void}
      */
     markActive() {
         this.lastActiveTime = Date.now();
     }
 
     /**
-     * Ist eine horizontale Bewegung aktiv?
-     * @returns {boolean}
+     * Checks horizontal movement input state.
+     * @returns {boolean} True when LEFT or RIGHT is pressed.
      */
     isMoving() {
         if (!this.world || !this.world.keyboard) { return false; }
@@ -107,14 +116,16 @@ class Character extends MovableObject {
     }
 
     /**
-     * Ist Character tot?
+     * Indicates whether the character is dead.
+     * @returns {boolean} True if energy is zero.
      */
     dead() {
         return this.energy <= 0;
     }
 
     /**
-     * Todesanimation und Game Over.
+     * Plays the death animation once and triggers game over.
+     * @returns {Promise<void>} Resolves after animation finishes.
      */
     async playDeathAnimation() {
         if (this.isDeadAnimationPlayed) { return; }
@@ -131,9 +142,10 @@ class Character extends MovableObject {
     }
 
     /**
-     * Engere Kollision oben.
-     * @param {MovableObject} other
-     * @param {object} offset
+     * Uses a tighter collision for the character's head.
+     * @param {MovableObject} other - Object to test against.
+     * @param {object} [offset] - Optional custom hitbox offsets.
+     * @returns {boolean} True if overlapping with adjusted box.
      */
     isColliding(other, offset) {
         let defaultOffset = { top: 190, bottom: 30, left: 55, right: 55 };
@@ -141,12 +153,13 @@ class Character extends MovableObject {
     }
 
     /**
-     * Haupt-Loop.
+     * Starts the movement and animation state loops.
+     * @returns {void}
      */
     animate() {
         let self = this;
 
-        // Bewegung
+        // Movement loop
         setInterval(function () {
             if (!self.world || self.world.paused) { return; }
             if (self.dead()) { return; }
@@ -155,7 +168,7 @@ class Character extends MovableObject {
             self.world.camera_x = -self.x + 100;
         }, 10);
 
-        // Animationszustände
+        // Animation state loop
         setInterval(function () {
             if (!self.world || self.world.paused) { return; }
 
@@ -174,7 +187,8 @@ class Character extends MovableObject {
     }
 
     /**
-     * Bewegung per Tastatur.
+     * Applies keyboard movement and jump input.
+     * @returns {void}
      */
     handleMovement() {
         if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -197,7 +211,8 @@ class Character extends MovableObject {
     }
 
     /**
-     * Idle oder Sleep je nach Inaktivität.
+     * Chooses between idle and sleep animations based on inactivity.
+     * @returns {void}
      */
     handleIdleSleep() {
         const sleepMs = 15000;

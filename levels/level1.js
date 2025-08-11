@@ -1,4 +1,10 @@
 // levels/level1.js
+
+/**
+ * Creates and returns the first level configuration with enemies,
+ * clouds, parallax backgrounds, coins and bottles.
+ * @returns {Level} The configured level instance.
+ */
 function createLevel1() {
     return new Level(
         [

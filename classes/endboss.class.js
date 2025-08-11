@@ -1,4 +1,10 @@
 // classes/endboss.class.js
+
+/**
+ * The boss enemy with multiple states and limited health.
+ * Extends {@link MovableObject}.
+ * @class
+ */
 class Endboss extends MovableObject {
     IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
@@ -41,6 +47,10 @@ class Endboss extends MovableObject {
         'img/4_enemie_boss_chicken/5_dead/G26.png'
     ];
 
+    /**
+     * Enum-like state mapping for the boss.
+     * @readonly
+     */
     static STATES = {
         ALERT: 'alert',
         WALK: 'walk',
@@ -58,6 +68,10 @@ class Endboss extends MovableObject {
     startX;
     movementSpeed = 6;
 
+    /**
+     * Creates the endboss at its initial position and starts animation.
+     * @constructor
+     */
     constructor() {
         super().loadImg('img/4_enemie_boss_chicken/2_alert/G5.png');
         this.loadImages(this.IMAGES_ALERT);
@@ -73,7 +87,8 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Called when bottle hits boss.
+     * Applies damage if cooldown elapsed, sets state transitions.
+     * @returns {boolean} True when the hit was accepted.
      */
     hit() {
         const now = Date.now();
@@ -103,7 +118,8 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Defeats boss and shows end screen.
+     * Plays the death sequence and resolves when finished.
+     * @returns {Promise<void>} Resolves once the animation completes.
      */
     async defeated() {
         if (this.animationInterval) {
@@ -134,7 +150,8 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Boss main animation state machine.
+     * Drives the boss animation state machine.
+     * @returns {void}
      */
     animate() {
         let self = this;
@@ -168,7 +185,8 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Moves boss horizontally within range.
+     * Moves the boss back and forth within a defined horizontal range.
+     * @returns {void}
      */
     moveHorizontally() {
         this.x -= this.movementSpeed;
@@ -182,7 +200,8 @@ class Endboss extends MovableObject {
     }
 
     /**
-     * Move left basic.
+     * Basic left movement used by WALK state.
+     * @returns {void}
      */
     moveLeft() {
         this.x -= this.speed;

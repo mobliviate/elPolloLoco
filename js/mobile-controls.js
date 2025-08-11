@@ -1,11 +1,7 @@
-// js/mobile-controls.js
-// js/mobile-controls.js
-/* global keyboard, world, toggleMobileControls */
-
 /**
- * Ermittelt, ob die Mobile-Controls grundsätzlich erlaubt sind.
- * Kriterium: Pointer "coarse" UND Viewport ≤ 900px.
- * @returns {boolean}
+ * Determines whether mobile controls should be considered at all.
+ * Criterion: pointer "coarse" OR viewport ≤ 900px.
+ * @returns {boolean} True if device likely needs touch controls.
  */
 function shouldShowMobileControls() {
     let coarse = window.matchMedia('(pointer: coarse)').matches;
@@ -14,8 +10,8 @@ function shouldShowMobileControls() {
 }
 
 /**
- * Prüft, ob gerade wirklich gespielt wird (keine Overlays, Welt vorhanden, nicht pausiert).
- * @returns {boolean}
+ * Checks if the game is actively running without overlays or pause.
+ * @returns {boolean} True when playing is possible.
  */
 function isGameActive() {
     if (!window.world) { return false; }
@@ -29,9 +25,9 @@ function isGameActive() {
 }
 
 /**
- * Ist ein Overlay-Element sichtbar (ohne .hidden)?
- * @param {string} id
- * @returns {boolean}
+ * Returns if a given overlay element is visible (no .hidden class).
+ * @param {string} id - Element ID to check.
+ * @returns {boolean} True if element exists and is visible.
  */
 function isOverlayVisible(id) {
     let el = document.getElementById(id);
@@ -39,8 +35,9 @@ function isOverlayVisible(id) {
 }
 
 /**
- * Aktualisiert die Sichtbarkeit der Mobile-Controls.
- * Nur sichtbar, wenn Mobilemodus aktiv UND Spiel aktiv.
+ * Computes and applies visibility of mobile controls bar.
+ * Only visible when mobile mode AND game active.
+ * @returns {void}
  */
 function updateMobileControlsVisibility() {
     let show = shouldShowMobileControls() && isGameActive();
@@ -48,8 +45,8 @@ function updateMobileControlsVisibility() {
 }
 
 /**
- * Initialisiert die Mobile-Controls nach DOM-Load.
- * Bindet Events nur einmal und schaltet Anzeige dynamisch.
+ * Initializes mobile controls: binds handlers once and updates on load.
+ * @returns {void}
  */
 function initMobileControls() {
     updateMobileControlsVisibility();
@@ -59,14 +56,16 @@ function initMobileControls() {
 }
 
 /**
- * Reagiert auf Größen-/Orientierungswechsel.
+ * Handles viewport changes (resize/orientation) by recalculating visibility.
+ * @returns {void}
  */
 function handleViewportChange() {
     updateMobileControlsVisibility();
 }
 
 /**
- * Bindet Steuertasten (Touch + Maus) einmalig.
+ * Binds touch/mouse handlers to control buttons; runs once.
+ * @returns {void}
  */
 function bindControlButtonsOnce() {
     if (bindControlButtonsOnce.done) { return; }
@@ -78,9 +77,10 @@ function bindControlButtonsOnce() {
 }
 
 /**
- * Verknüpft Button mit Keyboard-Flag.
- * @param {string} id
- * @param {string} keyProp
+ * Associates a button element with a Keyboard property.
+ * @param {string} id - Button element ID.
+ * @param {string} keyProp - Property on Keyboard (e.g., 'LEFT').
+ * @returns {void}
  */
 function bindPressButton(id, keyProp) {
     let btn = document.getElementById(id);
@@ -90,9 +90,10 @@ function bindPressButton(id, keyProp) {
 }
 
 /**
- * Fügt Touch-Handler hinzu.
- * @param {HTMLElement} btn
- * @param {string} keyProp
+ * Attaches touchstart/touchend handlers to a control button.
+ * @param {HTMLElement} btn - Target button element.
+ * @param {string} keyProp - Keyboard property to toggle.
+ * @returns {void}
  */
 function addTouchHandlers(btn, keyProp) {
     btn.addEventListener('touchstart', function (e) {
@@ -107,9 +108,10 @@ function addTouchHandlers(btn, keyProp) {
 }
 
 /**
- * Fügt Maus-Handler hinzu (für DevTools-Tests).
- * @param {HTMLElement} btn
- * @param {string} keyProp
+ * Attaches mouse handlers (for DevTools testing) to a control button.
+ * @param {HTMLElement} btn - Target button element.
+ * @param {string} keyProp - Keyboard property to toggle.
+ * @returns {void}
  */
 function addMouseHandlers(btn, keyProp) {
     btn.addEventListener('mousedown', function (e) {
@@ -128,9 +130,10 @@ function addMouseHandlers(btn, keyProp) {
 }
 
 /**
- * Setzt Keyboard-Flag und markiert Aktivität.
- * @param {string} keyProp
- * @param {boolean} val
+ * Sets a Keyboard flag and marks the character active when pressed.
+ * @param {string} keyProp - Property name to set on keyboard.
+ * @param {boolean} val - New boolean value.
+ * @returns {void}
  */
 function setKeyFlag(keyProp, val) {
     keyboard[keyProp] = val;
@@ -139,7 +142,10 @@ function setKeyFlag(keyProp, val) {
     }
 }
 
-/* DOM-Load Hook */
+/**
+ * DOM load hook: initializes mobile controls after the page has loaded.
+ * @returns {void}
+ */
 window.addEventListener('load', function () {
     initMobileControls();
 });

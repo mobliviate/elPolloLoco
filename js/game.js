@@ -1,4 +1,3 @@
-// js/game.js
 /* global World, Keyboard, audioManager, setMuteButtonState, createLevel1, updateMobileControlsVisibility */
 
 let canvas;
@@ -11,7 +10,9 @@ let currentLevel = null;
 window.world = null;
 
 /**
- * Bootstrapped beim Laden der Seite.
+ * Bootstraps the application when the page loads.
+ * Initializes UI, keyboard listeners, mute state and orientation check.
+ * @returns {void}
  */
 function boot() {
     canvas = document.getElementById('canvas');
@@ -22,40 +23,45 @@ function boot() {
 }
 
 /**
- * Startet das Spiel (einmalig).
+ * Starts the game exactly once and hides the start screen.
+ * @returns {void}
  */
 function startGame() {
     if (world !== null) { return; }
     currentLevel = createLevel1();
     world = new World(canvas, keyboard, currentLevel);
-    window.world = world;                 // <-- an window anhängen
+    window.world = world;                 // <-- attach to window
     audioManager.playLoop('bgm');
     hideStartScreen();
     updateMobileControlsVisibility();
 }
 
 /**
- * Startet das Spiel neu.
+ * Restarts the game by resetting state and creating a new world.
+ * @returns {void}
  */
 function restartGame() {
     if (world) { world.gameOver = true; }
     document.getElementById('endscreen').classList.add('hidden');
     world = null;
-    window.world = null;                  // <-- sauber zurücksetzen
+    window.world = null;                  // <-- clean reset
     currentLevel = null;
     startGame();
     updateMobileControlsVisibility();
 }
 
 /**
- * Zurück zur Startseite.
+ * Returns to the start page by reloading the document.
+ * @returns {void}
  */
 function goHome() {
     window.location.reload();
 }
 
 /**
- * Initialisiert Keyboard-Events.
+ * Registers keydown/keyup handlers and maps them to keyboard state.
+ * Also tracks last input time.
+ * @returns {void}
  */
 function initKeyboardListeners() {
     window.addEventListener('keydown', function (event) {
@@ -85,17 +91,19 @@ function initKeyboardListeners() {
 }
 
 /**
- * Pausiert/entpausiert das Spiel und synchronisiert UI.
+ * Toggles world pause and syncs audio and mobile controls visibility.
+ * @returns {void}
  */
 function togglePause() {
     if (!world) { return; }
     world.togglePause();
     audioManager.pauseAll(world.paused);
-    updateMobileControlsVisibility();     // <-- Controls bei Pause ausblenden
+    updateMobileControlsVisibility();     // <-- hide controls while paused
 }
 
 /**
- * Markiert die letzte Eingabezeit (für Idle/Sleep).
+ * Updates last input time on the character for idle/sleep logic.
+ * @returns {void}
  */
 function updateLastInputTime() {
     if (!world || !world.character || !world.character[0]) { return; }
@@ -103,21 +111,24 @@ function updateLastInputTime() {
 }
 
 /**
- * Debug-Modus an/aus.
+ * Toggles the debug overlay for hitboxes etc.
+ * @returns {void}
  */
 function toggleDebug() {
     window.DEBUG_MODE = !window.DEBUG_MODE;
 }
 
 /**
- * Stellt den Mute-Button-Status aus Storage her.
+ * Restores mute button state based on stored preference.
+ * @returns {void}
  */
 function initMuteButtonFromStorage() {
     setMuteButtonState(audioManager.isMuted());
 }
 
 /**
- * Versteckt den Startscreen.
+ * Hides the start screen overlay.
+ * @returns {void}
  */
 function hideStartScreen() {
     let ss = document.getElementById('start-screen');

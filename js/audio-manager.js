@@ -1,9 +1,13 @@
 // js/audio-manager.js
+
 /**
- * Handles all game audio (music & SFX) with global mute stored in LocalStorage.
+ * Manages music and sound effects for the game with a global mute state
+ * persisted in LocalStorage.
+ * @class
  */
 class AudioManager {
     /**
+     * Creates the audio manager, loads state and preloads tracks.
      * @constructor
      */
     constructor() {
@@ -15,7 +19,8 @@ class AudioManager {
     }
 
     /**
-     * Loads all audio files.
+     * Loads all audio assets used by the game.
+     * @returns {void}
      */
     loadAll() {
         this.add('bgm', 'audio/bgm.mp3', true);
@@ -30,10 +35,11 @@ class AudioManager {
     }
 
     /**
-     * Adds a single track.
-     * @param {string} name 
-     * @param {string} src 
-     * @param {boolean} loop 
+     * Adds a track to the manager.
+     * @param {string} name - Logical track name.
+     * @param {string} src - Source URL for audio file.
+     * @param {boolean} [loop=false] - Whether to loop the track.
+     * @returns {void}
      */
     add(name, src, loop) {
         const audio = new Audio(src);
@@ -43,8 +49,9 @@ class AudioManager {
     }
 
     /**
-     * Plays a sound once.
-     * @param {string} name 
+     * Plays a one-shot sound by name from the beginning.
+     * @param {string} name - Track key to play.
+     * @returns {void}
      */
     play(name) {
         if (this.muted) return;
@@ -54,8 +61,9 @@ class AudioManager {
     }
 
     /**
-     * Plays a looped track.
-     * @param {string} name 
+     * Plays a looping track by name if not muted.
+     * @param {string} name - Track key to play.
+     * @returns {void}
      */
     playLoop(name) {
         if (this.muted) return;
@@ -64,8 +72,9 @@ class AudioManager {
     }
 
     /**
-     * Pauses or resumes all sounds.
-     * @param {boolean} pause 
+     * Pauses all tracks or resumes looping ones depending on the flag.
+     * @param {boolean} pause - True to pause everything, false to resume loops.
+     * @returns {void}
      */
     pauseAll(pause) {
         for (let key in this.tracks) {
@@ -78,7 +87,8 @@ class AudioManager {
     }
 
     /**
-     * Toggles mute state.
+     * Toggles the global mute state and persists it.
+     * @returns {void}
      */
     toggleMute() {
         this.muted = !this.muted;
@@ -87,14 +97,16 @@ class AudioManager {
     }
 
     /**
-     * Returns current mute state.
+     * Returns the current mute state.
+     * @returns {boolean} True if muted.
      */
     isMuted() {
         return this.muted;
     }
 
     /**
-     * Applies mute to all tracks.
+     * Applies the mute flag to all managed tracks.
+     * @returns {void}
      */
     applyMute() {
         for (let key in this.tracks) {
@@ -103,7 +115,8 @@ class AudioManager {
     }
 
     /**
-     * Load mute state from LocalStorage.
+     * Loads the mute state from LocalStorage and applies it.
+     * @returns {void}
      */
     loadMuteState() {
         const stored = localStorage.getItem(this.storageKey);
@@ -116,7 +129,8 @@ class AudioManager {
     }
 
     /**
-     * Save mute state to LocalStorage.
+     * Saves the current mute state into LocalStorage.
+     * @returns {void}
      */
     saveMuteState() {
         localStorage.setItem(this.storageKey, this.muted ? 'true' : 'false');

@@ -1,12 +1,6 @@
-// js/ui.js
-/* global audioManager */
-
-/* -----------------------------------------------------------
-   UI Init
------------------------------------------------------------ */
-
 /**
- * Initialisiert UI-Buttons und Overlays.
+ * Initializes UI buttons, overlays, and fullscreen observers.
+ * @returns {void}
  */
 function initUI() {
     bindClick('btn-start', startGame);
@@ -22,9 +16,10 @@ function initUI() {
 }
 
 /**
- * Bindet Click-Handler an ein Element per ID.
- * @param {string} id
- * @param {Function} handler
+ * Adds a click event handler to an element by ID.
+ * @param {string} id - Element ID.
+ * @param {Function} handler - Click handler function.
+ * @returns {void}
  */
 function bindClick(id, handler) {
     let el = document.getElementById(id);
@@ -36,8 +31,9 @@ function bindClick(id, handler) {
 ----------------------------------------------------------- */
 
 /**
- * Öffnet/Schließt Impressum.
- * @param {boolean} show
+ * Shows or hides the imprint overlay and syncs mobile controls.
+ * @param {boolean} show - Whether to show the imprint.
+ * @returns {void}
  */
 function showImpressum(show) {
     let imp = document.getElementById('impressum');
@@ -51,8 +47,9 @@ function showImpressum(show) {
 }
 
 /**
- * Aktualisiert Label des Mute-Buttons.
- * @param {boolean} muted
+ * Updates the mute button label according to the current state.
+ * @param {boolean} muted - Current mute state.
+ * @returns {void}
  */
 function setMuteButtonState(muted) {
     let btn = document.getElementById('btn-mute-toggle');
@@ -60,8 +57,9 @@ function setMuteButtonState(muted) {
 }
 
 /**
- * Zeigt Endscreen (“win”/“lose”) und pausiert Audio.
- * @param {string} type
+ * Displays the endscreen of a given type and pauses audio.
+ * @param {'win'|'lose'} type - The endscreen type to show.
+ * @returns {void}
  */
 function showEndscreen(type) {
     let end = document.getElementById('endscreen');
@@ -80,8 +78,9 @@ function showEndscreen(type) {
 ----------------------------------------------------------- */
 
 /**
- * Zeigt/verbirgt die Mobile-Controls-Leiste.
- * @param {boolean} show
+ * Shows or hides the mobile controls bar element.
+ * @param {boolean} show - True to show, false to hide.
+ * @returns {void}
  */
 function toggleMobileControls(show) {
     let mc = document.getElementById('mobile-controls');
@@ -95,16 +94,17 @@ function toggleMobileControls(show) {
 ----------------------------------------------------------- */
 
 /**
- * Liefert true, wenn ein Element im Fullscreen ist.
- * @returns {boolean}
+ * Returns whether there is currently an element in fullscreen.
+ * @returns {boolean} True if fullscreen is active.
  */
 function isFullscreenActive() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
 }
 
 /**
- * Versucht Fullscreen anzufordern (Cross-Browser).
- * @param {HTMLElement} el
+ * Requests fullscreen for a given element using vendor-prefixed APIs if needed.
+ * @param {HTMLElement} el - Element to make fullscreen.
+ * @returns {void}
  */
 function requestFullscreenSafe(el) {
     if (!el) { return; }
@@ -114,7 +114,8 @@ function requestFullscreenSafe(el) {
 }
 
 /**
- * Verlässt Fullscreen sicher (Cross-Browser).
+ * Exits fullscreen using vendor-prefixed APIs if needed.
+ * @returns {void}
  */
 function exitFullscreenSafe() {
     if (document.exitFullscreen) { document.exitFullscreen(); return; }
@@ -123,22 +124,25 @@ function exitFullscreenSafe() {
 }
 
 /**
- * Öffentliche API: Fullscreen betreten.
- * @param {HTMLElement} element
+ * Public API wrapper to enter fullscreen mode.
+ * @param {HTMLElement} element - Element to enter fullscreen.
+ * @returns {void}
  */
 function enterFullscreen(element) {
     requestFullscreenSafe(element);
 }
 
 /**
- * Öffentliche API: Fullscreen verlassen.
+ * Public API wrapper to leave fullscreen mode.
+ * @returns {void}
  */
 function exitFullscreen() {
     exitFullscreenSafe();
 }
 
 /**
- * Reagiert auf Fullscreen-Zustandswechsel (UI sync).
+ * Reacts to fullscreen state changes to show/hide relevant buttons.
+ * @returns {void}
  */
 function onFullscreenChange() {
     let fsBtn = document.getElementById('fullscreen-button');
@@ -149,7 +153,8 @@ function onFullscreenChange() {
 }
 
 /**
- * Registriert Fullscreen-Eventlistener.
+ * Registers listeners for fullscreenchange events and syncs UI once.
+ * @returns {void}
  */
 function initFullscreenObservers() {
     document.addEventListener('fullscreenchange', onFullscreenChange);

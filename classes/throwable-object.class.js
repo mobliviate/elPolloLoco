@@ -1,4 +1,10 @@
 // classes/throwable-object.class.js
+
+/**
+ * Throwable salsa bottle with rotation and splash animation.
+ * Extends {@link MovableObject}.
+ * @class
+ */
 class ThrowableObject extends MovableObject {
 
     rotationImages = [
@@ -21,9 +27,10 @@ class ThrowableObject extends MovableObject {
     throwLeft = false;
 
     /**
-     * @param {number} x 
-     * @param {number} y 
-     * @param {boolean} throwLeft 
+     * Creates a throwable bottle instance.
+     * @param {number} x - Start X position.
+     * @param {number} y - Start Y position.
+     * @param {boolean} throwLeft - Direction of throw (true = left).
      */
     constructor(x, y, throwLeft) {
         super();
@@ -39,8 +46,8 @@ class ThrowableObject extends MovableObject {
     }
 
     /**
-     * Starts throw physics and rotation.
-     * @param {boolean} throwLeft 
+     * Initiates the projectile physics and rotation.
+     * @returns {void}
      */
     throw() {
         this.speedY = 10;
@@ -62,7 +69,8 @@ class ThrowableObject extends MovableObject {
     }
 
     /**
-     * Rotates bottle during flight.
+     * Loops through rotation images during flight.
+     * @returns {void}
      */
     animateRotation() {
         let self = this;
@@ -73,7 +81,8 @@ class ThrowableObject extends MovableObject {
     }
 
     /**
-     * Plays splash animation and marks as finished.
+     * Executes the splash animation and stops updates when done.
+     * @returns {void}
      */
     startSplash() {
         this.isSplashing = true;

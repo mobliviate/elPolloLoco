@@ -1,3 +1,8 @@
+/**
+ * HUD status bar for health, coins, and bottles.
+ * Extends {@link DrawableObject}.
+ * @class
+ */
 class StatusBar extends DrawableObject {
 
     IMAGES_HEALTH = [
@@ -31,6 +36,11 @@ class StatusBar extends DrawableObject {
     percentage_coin = 0;
     percentage_bottle = 0;
 
+    /**
+     * Creates a status bar for the specified type at a vertical position.
+     * @param {'health'|'coin'|'bottle'} type - Which bar to display.
+     * @param {number} yPosition - Vertical position on canvas.
+     */
     constructor(type, yPosition) {
         super();
         this.type = type;
@@ -53,6 +63,11 @@ class StatusBar extends DrawableObject {
 
     }
 
+    /**
+     * Updates the health bar according to a percentage.
+     * @param {number} percentage_health - Health percentage (0–100).
+     * @returns {void}
+     */
     updateHealthBar(percentage_health) {
         this.percentage_health = percentage_health;
         if (percentage_health < 0) {
@@ -65,6 +80,11 @@ class StatusBar extends DrawableObject {
         this.img = this.imageCache[path];
     }
 
+    /**
+     * Updates the coin bar according to a percentage.
+     * @param {number} percentage_coin - Coin percentage (0–100).
+     * @returns {void}
+     */
     updateCoinBar(percentage_coin) {
         this.percentage_coin = percentage_coin;
         if (percentage_coin < 0) percentage_coin = 0;
@@ -76,6 +96,11 @@ class StatusBar extends DrawableObject {
         this.img = this.imageCache[path];
     }
 
+    /**
+     * Updates the bottle bar according to a percentage.
+     * @param {number} percentage_bottle - Bottle percentage (0–100).
+     * @returns {void}
+     */
     updateBottleBar(percentage_bottle) {
         this.percentage_bottle = percentage_bottle;
         if (percentage_bottle < 0) percentage_bottle = 0;
