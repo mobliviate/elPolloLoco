@@ -343,7 +343,6 @@ class World {
 
         this.ctx.translate(this.camera_x, 0);
 
-        // z-order: enemies (back), then character, then bottles (front)
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.character);
         this.addObjectsToMap(this.throwableObjects);

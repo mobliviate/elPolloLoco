@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,6 +36,7 @@
     <script src="js/orientation.js"></script>
     <script src="js/game.js"></script>
 </head>
+
 <body onload="boot()">
 
     <div id="start-screen" class="overlay fullscreen">
@@ -51,18 +53,11 @@
     <div id="game-container">
         <div id="game-header">
             <h1>El Pollo Loco</h1>
-            <img
-                src="img/fullscreen.png"
-                alt="Fullscreen"
-                id="fullscreen-button"
+            <img src="img/fullscreen.png" alt="Fullscreen" id="fullscreen-button"
                 onclick="enterFullscreen(document.getElementById('game-container'))">
         </div>
 
-        <img
-            src="img/fullscreen.png"
-            alt="Exit Fullscreen"
-            id="exit-fullscreen-button"
-            onclick="exitFullscreen()">
+        <img src="img/fullscreen.png" alt="Exit Fullscreen" id="exit-fullscreen-button" onclick="exitFullscreen()">
 
         <div id="orientation-overlay" class="overlay fullscreen hidden">
             <div class="orientation-box">
@@ -115,4 +110,5 @@
     </div>
 
 </body>
+
 </html>

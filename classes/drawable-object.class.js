@@ -17,7 +17,7 @@ class DrawableObject {
      * Creates a new drawable object.
      * @constructor
      */
-    constructor() {}
+    constructor() { }
 
     /**
      * Loads a single image into this object's main image.
@@ -71,8 +71,8 @@ class DrawableObject {
             this.height - offset.top - offset.bottom
         );
         ctx.strokeStyle = this instanceof Character ? 'lime' :
-                          this instanceof Endboss ? 'orange' :
-                          this instanceof Coin || this instanceof Bottle || this instanceof ThrowableObject ? 'orange' : 'red';
+            this instanceof Endboss ? 'orange' :
+                this instanceof Coin || this instanceof Bottle || this instanceof ThrowableObject ? 'orange' : 'red';
         ctx.lineWidth = 2;
         ctx.stroke();
     }
