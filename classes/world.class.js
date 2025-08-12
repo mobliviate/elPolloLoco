@@ -128,17 +128,47 @@ class World {
     }
 
     /**
-     * Checks character collisions with all alive chickens.
+     * Checks character collisions with chickens, resolves group stomp or damage.
+     * Kills ALL overlappte Hühner bei Stomp.
      * @param {Character} character - Player character.
      * @returns {void}
      */
     checkChickensCollisions(character) {
-        let self = this;
+        let colliders = this.getCollidingChickens(character);
+        if (colliders.length === 0) { return; }
+
+        if (this.didStompAny(character, colliders)) {
+            this.handleChickenStompGroup(character, colliders);
+        } else {
+            this.handleChickenDamageToCharacter(character);
+        }
+    }
+
+    /**
+     * Collects all alive chickens currently colliding with the character.
+     * @param {Character} character - Player character.
+     * @returns {MovableObject[]} Colliding chickens.
+     */
+    getCollidingChickens(character) {
+        let hits = [];
         this.level.enemies.forEach(function (enemy) {
-            if ((enemy instanceof Chicken || enemy instanceof ChickenSmall) && !enemy.isDead) {
-                self.checkChickenCollision(character, enemy);
-            }
+            let isChicken = enemy instanceof Chicken || enemy instanceof ChickenSmall;
+            if (isChicken && !enemy.isDead && character.isColliding(enemy)) { hits.push(enemy); }
         });
+        return hits;
+    }
+
+    /**
+     * True if character stomped at least one of the colliding chickens.
+     * @param {Character} character - Player character.
+     * @param {MovableObject[]} colliders - Colliding chickens.
+     * @returns {boolean} Stomp happened.
+     */
+    didStompAny(character, colliders) {
+        for (let i = 0; i < colliders.length; i++) {
+            if (this.isStompFromAbove(character, colliders[i])) { return true; }
+        }
+        return false;
     }
 
     /**
@@ -213,22 +243,8 @@ class World {
     }
 
     /**
-     * Resolves character vs. chicken collision with stomp logic.
-     * @param {Character} character - Player character.
-     * @param {MovableObject} enemy - Chicken or small chicken.
-     * @returns {void}
-     */
-    checkChickenCollision(character, enemy) {
-        if (!character.isColliding(enemy)) { return; }
-        if (this.isStompFromAbove(character, enemy)) {
-            this.handleChickenStomp(character, enemy);
-        } else {
-            this.handleChickenDamageToCharacter(character);
-        }
-    }
-
-    /**
-     * Returns true when character falls onto a chicken's head.
+     * Robust stomp check: requires downward movement and crossing the head line.
+     * Uses character.prevY to detect crossing with tolerance.
      * @param {Character} character - Player character.
      * @param {MovableObject} enemy - Chicken or small chicken.
      * @returns {boolean} True if stomp hit.
@@ -237,22 +253,48 @@ class World {
         const fallingDown = character.speedY < 0;
         const co = MovableObject.getHitboxOffset(character.constructor.name);
         const eo = MovableObject.getHitboxOffset(enemy.constructor.name);
-        const charFeet = character.y + character.height - co.bottom;
+
+        const prevFeet = character.prevY + character.height - co.bottom;
+        const currFeet = character.y + character.height - co.bottom;
         const enemyHead = enemy.y + eo.top;
-        const tolerance = 60;
-        return fallingDown && charFeet <= (enemyHead + tolerance);
+        const tolerance = 90;
+
+        const crossed = prevFeet <= (enemyHead + tolerance) && currFeet >= enemyHead;
+        return fallingDown && crossed;
     }
 
     /**
-     * Kills the chicken and bounces the character slightly up.
+     * Kills all colliding chickens on stomp, bounces and snaps character to heads.
      * @param {Character} character - Player character.
-     * @param {MovableObject} enemy - Chicken hit.
+     * @param {MovableObject[]} colliders - Colliding chickens.
      * @returns {void}
      */
-    handleChickenStomp(character, enemy) {
-        enemy.dead();
-        character.speedY = 12;
-        audioManager.play('enemy_hit');
+    handleChickenStompGroup(character, colliders) {
+        let minHead = null;
+        for (let i = 0; i < colliders.length; i++) {
+            let enemy = colliders[i];
+            if (this.isStompFromAbove(character, enemy)) {
+                enemy.dead();
+                let headY = this.getEnemyHeadY(enemy);
+                if (minHead === null || headY < minHead) { minHead = headY; }
+            }
+        }
+        if (minHead !== null) {
+            audioManager.play('enemy_hit');
+            character.speedY = 12;
+            character.y = minHead - character.height;
+            character.prevY = character.y;
+        }
+    }
+
+    /**
+     * Returns the "head top" Y position of an enemy.
+     * @param {MovableObject} enemy - Chicken or small chicken.
+     * @returns {number} Head top Y.
+     */
+    getEnemyHeadY(enemy) {
+        const eo = MovableObject.getHitboxOffset(enemy.constructor.name);
+        return enemy.y + eo.top;
     }
 
     /**
@@ -343,6 +385,7 @@ class World {
 
         this.ctx.translate(this.camera_x, 0);
 
+        // z-order: enemies (back), then character, then bottles (front)
         this.addObjectsToMap(this.level.enemies);
         this.addObjectsToMap(this.character);
         this.addObjectsToMap(this.throwableObjects);

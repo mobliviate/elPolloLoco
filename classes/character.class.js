@@ -14,6 +14,7 @@ class Character extends MovableObject {
     isDeadAnimationPlayed = false;
     lastActiveTime = Date.now();
     canMove = true;
+    prevY = 0;
 
     IMAGES_WALKING = [
         'img/2_character_pepe/2_walk/W-21.png',
@@ -94,6 +95,7 @@ class Character extends MovableObject {
         this.loadImages(this.IMAGES_IDLE);
         this.loadImages(this.IMAGES_SLEEP);
 
+        this.prevY = this.y;
         this.applyGravity();
         this.animate();
     }
@@ -155,6 +157,7 @@ class Character extends MovableObject {
     /**
      * Character-specific gravity: aligns ground with enemies' baseline.
      * Clamps y to the computed ground and resets vertical speed on landing.
+     * Updates prevY before applying movement for stomp checks.
      * @returns {void}
      */
     applyGravity() {
@@ -162,12 +165,15 @@ class Character extends MovableObject {
         setInterval(function () {
             let groundTop = self.world ? self.world.getGroundTopYForCharacter(self) : 0;
             if (self.y < groundTop || self.speedY > 0) {
+                self.prevY = self.y;
                 self.speedY -= self.acceleration;
                 self.y -= self.speedY;
                 if (self.y > groundTop) {
                     self.y = groundTop;
                     self.speedY = 0;
                 }
+            } else {
+                self.prevY = self.y;
             }
         }, 1000 / 50);
     }
