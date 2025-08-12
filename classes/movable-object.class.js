@@ -23,6 +23,7 @@ class MovableObject extends DrawableObject {
         Bottle: { top: 10, bottom: 10, left: 40, right: 40 },
         ThrowableObject: { top: 10, bottom: 10, left: 40, right: 40 },
         Chicken: { top: 0, bottom: 0, left: 0, right: 0 },
+        ChickenSmall: { top: 0, bottom: 0, left: 0, right: 0 }
     };
 
     /**
