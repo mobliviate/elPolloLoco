@@ -1,0 +1,9 @@
+services:
+  el-pollo-loco:
+    image: ghcr.io/mobliviate/elpolloloco:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    restart: unless-stopped
